@@ -247,100 +247,113 @@ const Collaboration: React.FC = () => {
         <div className="overflow-x-auto">
           <div className="flex gap-6 min-w-max pb-4">
             {/* Decision taken by AI */}
-            <div className="space-y-4 w-[600px] flex-shrink-0 bg-gray-50 p-4 rounded-lg">
-              <h2 className="text-lg font-semibold text-text-heading flex items-center gap-2">
-                <Bot className="h-5 w-5 text-primary" />
+            <div className="w-[700px] flex-shrink-0">
+              {/* Main Header */}
+              <div className="bg-blue-100 text-blue-900 px-4 py-3 rounded-t-lg font-medium text-sm">
                 Decision taken by AI
-              </h2>
-              <div className="grid grid-cols-2 gap-4">
+              </div>
+
+              {/* Sub-columns */}
+              <div className="grid grid-cols-2 gap-4 bg-gray-100 p-2">
                 {/* AI Executed Column */}
-                <Card
-                  className="min-h-[600px]"
-                  onDragOver={handleDragOver}
-                  onDrop={(e) => handleDrop(e, "ai-executed")}
-                >
-                  <CardHeader className="pb-3">
-                    <CardTitle className="text-sm font-medium text-green-600 flex items-center gap-2">
-                      <CheckCircle className="h-4 w-4" />
-                      AI Executed (8)
-                    </CardTitle>
-                  </CardHeader>
-                  <CardContent className="space-y-3">
+                <div className="bg-white rounded-lg border border-gray-200">
+                  <div className="flex items-center gap-2 px-3 py-2 border-b border-gray-200">
+                    <div className="w-1 h-4 bg-blue-500 rounded-full"></div>
+                    <span className="text-sm font-medium text-gray-900">
+                      AI Executed
+                    </span>
+                    <Badge className="ml-auto bg-gray-300 text-gray-700 text-xs px-2 py-0.5">
+                      4
+                    </Badge>
+                  </div>
+                  <div
+                    className="p-3 space-y-3 min-h-[500px]"
+                    onDragOver={handleDragOver}
+                    onDrop={(e) => handleDrop(e, "ai-executed")}
+                  >
                     {[
                       {
                         id: 1,
                         title: "Customer inquiry auto-response",
                         agent: "Support Agent",
-                        time: "2 min ago",
-                        priority: "high",
+                        time: "2min ago",
+                        priority: "High",
                       },
                       {
                         id: 2,
-                        title: "Lead qualification",
+                        title: "Lead qualification completed",
                         agent: "Sales Agent",
-                        time: "5 min ago",
-                        priority: "medium",
+                        time: "5min ago",
+                        priority: "Medium",
                       },
                       {
                         id: 3,
-                        title: "Content generation finished",
-                        agent: "Content Agent",
-                        time: "12 min ago",
-                        priority: "low",
+                        title: "Invoice processing automated",
+                        agent: "Finance Agent",
+                        time: "8min ago",
+                        priority: "Low",
+                      },
+                      {
+                        id: 4,
+                        title: "Email campaign sent",
+                        agent: "Marketing Agent",
+                        time: "12min ago",
+                        priority: "Medium",
                       },
                     ].map((item) => (
                       <Card
                         key={item.id}
-                        className="p-3 bg-green-50 border-green-200 cursor-move hover:shadow-md transition-shadow"
+                        className="p-3 bg-white border border-gray-200 cursor-move hover:shadow-md transition-shadow rounded-md"
                         draggable
                         onDragStart={(e) =>
                           handleDragStart(e, item, "ai-executed")
                         }
                       >
                         <div className="space-y-2">
-                          <div className="flex items-center justify-between">
-                            <div className="flex items-center gap-2">
-                              <GripVertical className="h-3 w-3 text-gray-400" />
-                              <h4 className="text-sm font-medium">
-                                {item.title}
-                              </h4>
-                            </div>
+                          <div className="flex items-start justify-between">
+                            <h4 className="text-sm font-medium text-gray-900">
+                              {item.title}
+                            </h4>
                             <Badge
-                              variant="outline"
-                              className={`text-xs ${
-                                item.priority === "high"
-                                  ? "border-red-300 text-red-600"
-                                  : item.priority === "medium"
-                                    ? "border-yellow-300 text-yellow-600"
-                                    : "border-gray-300 text-gray-600"
+                              className={`text-xs px-2 py-0.5 ${
+                                item.priority === "Critical"
+                                  ? "bg-red-200 text-red-900"
+                                  : item.priority === "High"
+                                    ? "bg-red-100 text-red-700"
+                                    : item.priority === "Medium"
+                                      ? "bg-yellow-100 text-yellow-700"
+                                      : "bg-gray-100 text-gray-700"
                               }`}
                             >
                               {item.priority}
                             </Badge>
                           </div>
-                          <div className="flex items-center justify-between text-xs text-muted-foreground">
+                          <div className="flex items-center justify-between text-xs text-gray-600">
                             <span>{item.agent}</span>
                             <span>{item.time}</span>
                           </div>
                         </div>
                       </Card>
                     ))}
-                  </CardContent>
-                </Card>
+                  </div>
+                </div>
 
                 {/* Execution failed Column */}
-                <Card
-                  className="min-h-[600px]"
-                  onDragOver={handleDragOver}
-                  onDrop={(e) => handleDrop(e, "ai-failed")}
-                >
-                  <CardHeader className="pb-3">
-                    <CardTitle className="text-sm font-medium text-red-600 flex items-center gap-2">
-                      <X className="h-4 w-4" />
-                      Execution failed / aborted (3)
-                    </CardTitle>
-                  </CardHeader>
-                  <CardContent className="space-y-3">
+                <div className="bg-white rounded-lg border border-gray-200">
+                  <div className="flex items-center gap-2 px-3 py-2 border-b border-gray-200">
+                    <div className="w-1 h-4 bg-red-500 rounded-full"></div>
+                    <span className="text-sm font-medium text-gray-900">
+                      Execution failed / aborted
+                    </span>
+                    <Badge className="ml-auto bg-gray-300 text-gray-700 text-xs px-2 py-0.5">
+                      3
+                    </Badge>
+                  </div>
+                  <div
+                    className="p-3 space-y-3 min-h-[500px]"
+                    onDragOver={handleDragOver}
+                    onDrop={(e) => handleDrop(e, "ai-failed")}
+                  >
                     {[
                       {
                         id: 1,
@@ -351,128 +364,239 @@ const Collaboration: React.FC = () => {
                       },
                       {
                         id: 2,
-                        title: "Connection timeout",
-                        agent: "Analytics Agent",
+                        title: "Payment processing failed",
+                        agent: "Payment Agent",
+                        time: "25 min ago",
+                        error: "Auth failed",
+                      },
+                      {
+                        id: 3,
+                        title: "Email delivery bounced",
+                        agent: "Email Agent",
                         time: "1 hour ago",
-                        error: "Timeout",
+                        error: "Invalid email",
                       },
                     ].map((item) => (
                       <Card
                         key={item.id}
-                        className="p-3 bg-red-50 border-red-200 cursor-move hover:shadow-md transition-shadow"
+                        className="p-3 bg-white border border-gray-200 cursor-move hover:shadow-md transition-shadow rounded-md"
                         draggable
                         onDragStart={(e) =>
                           handleDragStart(e, item, "ai-failed")
                         }
                       >
                         <div className="space-y-2">
-                          <div className="flex items-center justify-between">
-                            <div className="flex items-center gap-2">
-                              <GripVertical className="h-3 w-3 text-gray-400" />
-                              <h4 className="text-sm font-medium">
-                                {item.title}
-                              </h4>
-                            </div>
-                            <Badge
-                              variant="destructive"
-                              className="text-xs whitespace-nowrap"
-                            >
+                          <div className="flex items-start justify-between">
+                            <h4 className="text-sm font-medium text-gray-900">
+                              {item.title}
+                            </h4>
+                            <Badge className="bg-red-100 text-red-700 text-xs px-2 py-0.5">
                               {item.error}
                             </Badge>
                           </div>
-                          <div className="flex items-center justify-between text-xs text-muted-foreground">
+                          <div className="flex items-center justify-between text-xs text-gray-600">
                             <span>{item.agent}</span>
                             <span>{item.time}</span>
                           </div>
                         </div>
                       </Card>
                     ))}
-                  </CardContent>
-                </Card>
+                  </div>
+                </div>
               </div>
             </div>
 
             {/* Decisions pending on Humans */}
-            <div className="space-y-4 w-[400px] flex-shrink-0 bg-gray-50 p-4 rounded-lg">
-              <h2 className="text-lg font-semibold text-text-heading flex items-center gap-2">
-                <AlertTriangle className="h-5 w-5 text-yellow-600" />
+            <div className="w-[450px] flex-shrink-0">
+              {/* Main Header */}
+              <div className="bg-orange-100 text-orange-900 px-4 py-3 rounded-t-lg font-medium text-sm">
                 Decisions pending on Humans
-              </h2>
-              <div className="space-y-4">
-                {/* Awaiting Human Approval */}
-                <Card
-                  className="min-h-[600px]"
-                  onDragOver={handleDragOver}
-                  onDrop={(e) => handleDrop(e, "awaiting-approval")}
-                >
-                  <CardHeader className="pb-3">
-                    <CardTitle className="text-sm font-medium text-yellow-600 flex items-center gap-2">
-                      <Clock className="h-4 w-4" />
-                      Awaiting Human Approval (4)
-                    </CardTitle>
-                  </CardHeader>
-                  <CardContent className="space-y-3">
+              </div>
+
+              {/* Sub-column */}
+              <div className="bg-gray-100 p-2">
+                <div className="bg-white rounded-lg border border-gray-200">
+                  <div className="flex items-center gap-2 px-3 py-2 border-b border-gray-200">
+                    <div className="w-1 h-4 bg-orange-500 rounded-full"></div>
+                    <span className="text-sm font-medium text-gray-900">
+                      Awaiting Human Approval
+                    </span>
+                    <Badge className="ml-auto bg-gray-300 text-gray-700 text-xs px-2 py-0.5">
+                      4
+                    </Badge>
+                  </div>
+                  <div
+                    className="p-3 space-y-3 min-h-[500px]"
+                    onDragOver={handleDragOver}
+                    onDrop={(e) => handleDrop(e, "awaiting-approval")}
+                  >
                     {[
                       {
                         id: 1,
                         title: "High-value contract negotiation",
                         agent: "Sales Agent",
                         time: "5 min ago",
-                        priority: "high",
+                        priority: "High",
                         value: "$50,000",
                       },
                       {
                         id: 2,
-                        title: "Customer refund request",
-                        agent: "Support Agent",
+                        title: "Employee termination process",
+                        agent: "HR Agent",
                         time: "15 min ago",
-                        priority: "medium",
-                        value: "$1,200",
+                        priority: "Critical",
+                        value: "Sensitive",
                       },
                       {
                         id: 3,
-                        title: "New vendor partnership",
-                        agent: "Procurement Agent",
-                        time: "1 hour ago",
-                        priority: "low",
-                        value: "Partnership",
+                        title: "Large expense approval",
+                        agent: "Finance Agent",
+                        time: "30 min ago",
+                        priority: "High",
+                        value: "$25,000",
+                      },
+                      {
+                        id: 4,
+                        title: "Legal document review",
+                        agent: "Legal Agent",
+                        time: "45 min ago",
+                        priority: "Medium",
+                        value: "Contract",
                       },
                     ].map((item) => (
                       <Card
                         key={item.id}
-                        className="p-3 bg-yellow-50 border-yellow-200 cursor-move hover:shadow-md transition-shadow"
+                        className="p-3 bg-white border border-gray-200 cursor-move hover:shadow-md transition-shadow rounded-md"
                         draggable
                         onDragStart={(e) =>
                           handleDragStart(e, item, "awaiting-approval")
                         }
                       >
                         <div className="space-y-2">
-                          <div className="flex items-center justify-between">
-                            <div className="flex items-center gap-2">
-                              <GripVertical className="h-3 w-3 text-gray-400" />
-                              <h4 className="text-sm font-medium">
-                                {item.title}
-                              </h4>
-                            </div>
-                            <Badge
-                              variant="outline"
-                              className={`text-xs ${
-                                item.priority === "high"
-                                  ? "border-red-300 text-red-600"
-                                  : item.priority === "medium"
-                                    ? "border-yellow-300 text-yellow-600"
-                                    : "border-gray-300 text-gray-600"
-                              }`}
-                            >
+                          <div className="flex items-start justify-between">
+                            <h4 className="text-sm font-medium text-gray-900">
+                              {item.title}
+                            </h4>
+                            <Badge className="bg-red-100 text-red-700 text-xs px-2 py-0.5">
                               {item.priority}
                             </Badge>
                           </div>
-                          <div className="flex items-center justify-between text-xs text-muted-foreground">
+                          <div className="flex items-center justify-between text-xs text-gray-600">
                             <span>{item.agent}</span>
                             <span className="font-medium">{item.value}</span>
                           </div>
                           <div className="flex items-center justify-between">
-                            <span className="text-xs text-muted-foreground">
+                            <span className="text-xs text-gray-500">
+                              {item.time}
+                            </span>
+                            <Button
+                              size="sm"
+                              variant="outline"
+                              className="h-6 px-2 text-xs"
+                            >
+                              View Details
+                            </Button>
+                          </div>
+                        </div>
+                      </Card>
+                    ))}
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            {/* Decision taken by Humans */}
+            <div className="w-[1050px] flex-shrink-0">
+              {/* Main Header */}
+              <div className="bg-green-100 text-green-900 px-4 py-3 rounded-t-lg font-medium text-sm">
+                Decision taken by Humans
+              </div>
+
+              {/* Sub-columns */}
+              <div className="grid grid-cols-3 gap-4 bg-gray-100 p-2">
+                {/* Human Approved / AI Executed */}
+                <div className="bg-white rounded-lg border border-gray-200">
+                  <div className="flex items-center gap-2 px-3 py-2 border-b border-gray-200">
+                    <div className="w-1 h-4 bg-green-500 rounded-full"></div>
+                    <span className="text-sm font-medium text-gray-900">
+                      Human Approved / AI Executed
+                    </span>
+                    <Badge className="ml-auto bg-gray-300 text-gray-700 text-xs px-2 py-0.5">
+                      4
+                    </Badge>
+                  </div>
+                  <div
+                    className="p-3 space-y-3 min-h-[500px]"
+                    onDragOver={handleDragOver}
+                    onDrop={(e) => handleDrop(e, "human-approved")}
+                  >
+                    {[
+                      {
+                        id: 1,
+                        title: "Enterprise software purchase",
+                        approver: "John Doe",
+                        time: "1 hour ago",
+                        value: "$75,000",
+                        status: "Executed",
+                      },
+                      {
+                        id: 2,
+                        title: "Marketing campaign launch",
+                        approver: "Sarah Wilson",
+                        time: "2 hours ago",
+                        value: "$15,000",
+                        status: "In Progress",
+                      },
+                      {
+                        id: 3,
+                        title: "New hire onboarding",
+                        approver: "Emily Chen",
+                        time: "3 hours ago",
+                        value: "HR Process",
+                        status: "Completed",
+                      },
+                      {
+                        id: 4,
+                        title: "Vendor contract renewal",
+                        approver: "Mike Johnson",
+                        time: "4 hours ago",
+                        value: "$30,000",
+                        status: "Pending",
+                      },
+                    ].map((item) => (
+                      <Card
+                        key={item.id}
+                        className="p-3 bg-white border border-gray-200 cursor-move hover:shadow-md transition-shadow rounded-md"
+                        draggable
+                        onDragStart={(e) =>
+                          handleDragStart(e, item, "human-approved")
+                        }
+                      >
+                        <div className="space-y-2">
+                          <div className="flex items-start justify-between">
+                            <h4 className="text-sm font-medium text-gray-900">
+                              {item.title}
+                            </h4>
+                            <Badge
+                              className={`text-xs px-2 py-0.5 ${
+                                item.status === "Executed"
+                                  ? "bg-green-100 text-green-700"
+                                  : item.status === "Completed"
+                                    ? "bg-blue-100 text-blue-700"
+                                    : item.status === "In Progress"
+                                      ? "bg-yellow-100 text-yellow-700"
+                                      : "bg-gray-100 text-gray-700"
+                              }`}
+                            >
+                              {item.status}
+                            </Badge>
+                          </div>
+                          <div className="flex items-center justify-between text-xs text-gray-600">
+                            <span>Approved by {item.approver}</span>
+                            <span className="font-medium">{item.value}</span>
+                          </div>
+                          <div className="flex items-center justify-between">
+                            <span className="text-xs text-gray-500">
                               {item.time}
                             </span>
                             <div className="flex gap-1">
@@ -495,170 +619,124 @@ const Collaboration: React.FC = () => {
                         </div>
                       </Card>
                     ))}
-                  </CardContent>
-                </Card>
-              </div>
-            </div>
-
-            {/* Decision taken by Humans */}
-            <div className="space-y-4 w-[900px] flex-shrink-0 bg-gray-50 p-4 rounded-lg">
-              <h2 className="text-lg font-semibold text-text-heading flex items-center gap-2">
-                <User className="h-5 w-5 text-blue-600" />
-                Decision taken by Humans
-              </h2>
-              <div className="grid grid-cols-3 gap-4">
-                {/* Human Approved / AI Executed */}
-                <Card
-                  className="min-h-[600px]"
-                  onDragOver={handleDragOver}
-                  onDrop={(e) => handleDrop(e, "human-approved")}
-                >
-                  <CardHeader className="pb-3">
-                    <CardTitle className="text-sm font-medium text-green-600 flex items-center gap-2">
-                      <CheckCircle className="h-4 w-4" />
-                      Human Approved / AI Executed (5)
-                    </CardTitle>
-                  </CardHeader>
-                  <CardContent className="space-y-3">
-                    {[
-                      {
-                        id: 1,
-                        title: "Marketing campaign approval",
-                        approver: "Sarah Wilson",
-                        time: "30 min ago",
-                      },
-                      {
-                        id: 2,
-                        title: "Budget allocation decision required",
-                        approver: "John Doe",
-                        time: "2 hours ago",
-                      },
-                    ].map((item) => (
-                      <Card
-                        key={item.id}
-                        className="p-3 bg-green-50 border-green-200 cursor-move hover:shadow-md transition-shadow"
-                        draggable
-                        onDragStart={(e) =>
-                          handleDragStart(e, item, "human-approved")
-                        }
-                      >
-                        <div className="space-y-2">
-                          <div className="flex items-center gap-2">
-                            <GripVertical className="h-3 w-3 text-gray-400" />
-                            <h4 className="text-sm font-medium">
-                              {item.title}
-                            </h4>
-                          </div>
-                          <div className="flex items-center justify-between text-xs text-muted-foreground">
-                            <span>Approved by {item.approver}</span>
-                            <span>{item.time}</span>
-                          </div>
-                        </div>
-                      </Card>
-                    ))}
-                  </CardContent>
-                </Card>
+                  </div>
+                </div>
 
                 {/* Human Rejected */}
-                <Card
-                  className="min-h-[600px]"
-                  onDragOver={handleDragOver}
-                  onDrop={(e) => handleDrop(e, "human-rejected")}
-                >
-                  <CardHeader className="pb-3">
-                    <CardTitle className="text-sm font-medium text-red-600 flex items-center gap-2">
-                      <X className="h-4 w-4" />
-                      Human Rejected (2)
-                    </CardTitle>
-                  </CardHeader>
-                  <CardContent className="space-y-3">
+                <div className="bg-white rounded-lg border border-gray-200">
+                  <div className="flex items-center gap-2 px-3 py-2 border-b border-gray-200">
+                    <div className="w-1 h-4 bg-red-500 rounded-full"></div>
+                    <span className="text-sm font-medium text-gray-900">
+                      Human Rejected
+                    </span>
+                    <Badge className="ml-auto bg-gray-300 text-gray-700 text-xs px-2 py-0.5">
+                      2
+                    </Badge>
+                  </div>
+                  <div
+                    className="p-3 space-y-3 min-h-[500px]"
+                    onDragOver={handleDragOver}
+                    onDrop={(e) => handleDrop(e, "human-rejected")}
+                  >
                     {[
                       {
                         id: 1,
                         title: "Social media post content",
                         rejector: "Mike Johnson",
                         time: "1 hour ago",
-                        reason: "Content policy",
+                        reason: "Policy violation",
+                      },
+                      {
+                        id: 2,
+                        title: "Aggressive pricing strategy",
+                        rejector: "Sarah Wilson",
+                        time: "3 hours ago",
+                        reason: "Risk too high",
                       },
                     ].map((item) => (
                       <Card
                         key={item.id}
-                        className="p-3 bg-red-50 border-red-200 cursor-move hover:shadow-md transition-shadow"
+                        className="p-3 bg-white border border-gray-200 cursor-move hover:shadow-md transition-shadow rounded-md"
                         draggable
                         onDragStart={(e) =>
                           handleDragStart(e, item, "human-rejected")
                         }
                       >
                         <div className="space-y-2">
-                          <div className="flex items-center gap-2">
-                            <GripVertical className="h-3 w-3 text-gray-400" />
-                            <h4 className="text-sm font-medium">
+                          <div className="flex items-start justify-between">
+                            <h4 className="text-sm font-medium text-gray-900">
                               {item.title}
                             </h4>
-                          </div>
-                          <div className="flex items-center justify-between text-xs text-muted-foreground">
-                            <span>Rejected by {item.rejector}</span>
-                            <Badge
-                              variant="outline"
-                              className="text-xs whitespace-nowrap"
-                            >
+                            <Badge className="bg-red-100 text-red-700 text-xs px-2 py-0.5">
                               {item.reason}
                             </Badge>
                           </div>
-                          <div className="text-xs text-muted-foreground">
-                            {item.time}
+                          <div className="flex items-center justify-between text-xs text-gray-600">
+                            <span>Rejected by {item.rejector}</span>
+                            <span>{item.time}</span>
                           </div>
                         </div>
                       </Card>
                     ))}
-                  </CardContent>
-                </Card>
+                  </div>
+                </div>
 
                 {/* Timeout/Expired */}
-                <Card
-                  className="min-h-[600px]"
-                  onDragOver={handleDragOver}
-                  onDrop={(e) => handleDrop(e, "timeout-expired")}
-                >
-                  <CardHeader className="pb-3">
-                    <CardTitle className="text-sm font-medium text-orange-600 flex items-center gap-2">
-                      <Timer className="h-4 w-4" />
-                      Timeout/Expired (1)
-                    </CardTitle>
-                  </CardHeader>
-                  <CardContent className="space-y-3">
+                <div className="bg-white rounded-lg border border-gray-200">
+                  <div className="flex items-center gap-2 px-3 py-2 border-b border-gray-200">
+                    <div className="w-1 h-4 bg-yellow-500 rounded-full"></div>
+                    <span className="text-sm font-medium text-gray-900">
+                      Timeout/Expired
+                    </span>
+                    <Badge className="ml-auto bg-gray-300 text-gray-700 text-xs px-2 py-0.5">
+                      1
+                    </Badge>
+                  </div>
+                  <div
+                    className="p-3 space-y-3 min-h-[500px]"
+                    onDragOver={handleDragOver}
+                    onDrop={(e) => handleDrop(e, "timeout-expired")}
+                  >
                     {[
                       {
                         id: 1,
                         title: "Document review request",
                         time: "3 hours ago",
                         timeout: "2 hour timeout",
+                        originalValue: "$12,000",
                       },
                     ].map((item) => (
                       <Card
                         key={item.id}
-                        className="p-3 bg-orange-50 border-orange-200 cursor-move hover:shadow-md transition-shadow"
+                        className="p-3 bg-white border border-gray-200 cursor-move hover:shadow-md transition-shadow rounded-md"
                         draggable
                         onDragStart={(e) =>
                           handleDragStart(e, item, "timeout-expired")
                         }
                       >
                         <div className="space-y-2">
-                          <div className="flex items-center gap-2">
-                            <GripVertical className="h-3 w-3 text-gray-400" />
-                            <h4 className="text-sm font-medium">
+                          <div className="flex items-start justify-between">
+                            <h4 className="text-sm font-medium text-gray-900">
                               {item.title}
                             </h4>
+                            <Badge className="bg-orange-100 text-orange-700 text-xs px-2 py-0.5">
+                              Expired
+                            </Badge>
                           </div>
-                          <div className="flex items-center justify-between text-xs text-muted-foreground">
+                          <div className="flex items-center justify-between text-xs text-gray-600">
                             <span>{item.timeout}</span>
-                            <span>{item.time}</span>
+                            <span className="font-medium">
+                              {item.originalValue}
+                            </span>
+                          </div>
+                          <div className="text-xs text-gray-500">
+                            {item.time}
                           </div>
                         </div>
                       </Card>
                     ))}
-                  </CardContent>
-                </Card>
+                  </div>
+                </div>
               </div>
             </div>
           </div>

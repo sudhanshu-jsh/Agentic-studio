@@ -15,6 +15,13 @@ import {
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import {
   Search,
   Filter,
   Plus,
@@ -456,8 +463,8 @@ const AgentTools: React.FC = () => {
       </div>
 
       {/* Search and Filters */}
-      <div className="flex items-center gap-4">
-        <div className="relative flex-1 max-w-md">
+      <div className="flex items-center justify-end gap-4">
+        <div className="relative w-64">
           <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
           <Input
             placeholder="Search tools..."
@@ -466,10 +473,23 @@ const AgentTools: React.FC = () => {
             className="pl-10"
           />
         </div>
-        <Button variant="outline">
-          <Filter className="h-4 w-4 mr-2" />
-          Filter
-        </Button>
+        <Select defaultValue="all">
+          <SelectTrigger className="w-48">
+            <Filter className="h-4 w-4 mr-2" />
+            <SelectValue placeholder="Quick Filter" />
+          </SelectTrigger>
+          <SelectContent>
+            <SelectItem value="all">All Tools</SelectItem>
+            <SelectItem value="active">Active</SelectItem>
+            <SelectItem value="draft">Draft</SelectItem>
+            <SelectItem value="mcp">MCP Tools</SelectItem>
+            <SelectItem value="utilities">Utilities</SelectItem>
+            <SelectItem value="communication">Communication</SelectItem>
+            <SelectItem value="data">Data & APIs</SelectItem>
+            <SelectItem value="web">Web & Search</SelectItem>
+            <SelectItem value="content">Content & Media</SelectItem>
+          </SelectContent>
+        </Select>
       </div>
 
       {/* Tools Content */}

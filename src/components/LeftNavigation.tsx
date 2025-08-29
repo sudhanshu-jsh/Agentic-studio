@@ -59,11 +59,6 @@ const LeftNavigation: React.FC<LeftNavigationProps> = ({
       label: "Collaboration",
       icon: Users,
     },
-    {
-      id: "home",
-      label: "Agent Home",
-      icon: LayoutDashboard,
-    },
   ];
 
   return (
