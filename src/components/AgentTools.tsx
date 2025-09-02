@@ -48,7 +48,6 @@ import {
 
 const AgentTools: React.FC = () => {
   const [searchQuery, setSearchQuery] = useState("");
-  const [toolStates, setToolStates] = useState<Record<string, boolean>>({});
   const [selectedTool, setSelectedTool] = useState<any>(null);
   const [isConfigOpen, setIsConfigOpen] = useState(false);
   const [showMoreMCP, setShowMoreMCP] = useState(false);
@@ -427,6 +426,19 @@ const AgentTools: React.FC = () => {
     },
   ];
 
+  const [toolStates, setToolStates] = useState<Record<string, boolean>>(() => {
+    // Initialize with active tools turned on
+    const initialStates: Record<string, boolean> = {};
+    toolCategories.forEach((category) => {
+      category.tools.forEach((tool) => {
+        if (tool.status === "active") {
+          initialStates[tool.id] = true;
+        }
+      });
+    });
+    return initialStates;
+  });
+
   const allTools = toolCategories.flatMap((category) => category.tools);
   const filteredTools = allTools.filter(
     (tool) =>
@@ -462,47 +474,49 @@ const AgentTools: React.FC = () => {
         </Button>
       </div>
 
-      {/* Search and Filters */}
-      <div className="flex items-center justify-end gap-4">
-        <div className="relative w-64">
-          <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-          <Input
-            placeholder="Search tools..."
-            value={searchQuery}
-            onChange={(e) => setSearchQuery(e.target.value)}
-            className="pl-10"
-          />
-        </div>
-        <Select defaultValue="all">
-          <SelectTrigger className="w-48">
-            <Filter className="h-4 w-4 mr-2" />
-            <SelectValue placeholder="Quick Filter" />
-          </SelectTrigger>
-          <SelectContent>
-            <SelectItem value="all">All Tools</SelectItem>
-            <SelectItem value="active">Active</SelectItem>
-            <SelectItem value="draft">Draft</SelectItem>
-            <SelectItem value="mcp">MCP Tools</SelectItem>
-            <SelectItem value="utilities">Utilities</SelectItem>
-            <SelectItem value="communication">Communication</SelectItem>
-            <SelectItem value="data">Data & APIs</SelectItem>
-            <SelectItem value="web">Web & Search</SelectItem>
-            <SelectItem value="content">Content & Media</SelectItem>
-          </SelectContent>
-        </Select>
-      </div>
-
       {/* Tools Content */}
       <Tabs defaultValue="all" className="space-y-6">
-        <TabsList>
-          <TabsTrigger value="all">All Tools ({allTools.length})</TabsTrigger>
-          <TabsTrigger value="active">
-            Active ({allTools.filter((t) => t.status === "active").length})
-          </TabsTrigger>
-          <TabsTrigger value="draft">
-            Draft ({allTools.filter((t) => t.status === "draft").length})
-          </TabsTrigger>
-        </TabsList>
+        <div className="flex items-center justify-between">
+          <TabsList>
+            <TabsTrigger value="all">All Tools (35)</TabsTrigger>
+            <TabsTrigger value="active">
+              Active ({allTools.filter((t) => t.status === "active").length})
+            </TabsTrigger>
+            <TabsTrigger value="draft">
+              Draft ({allTools.filter((t) => t.status === "draft").length})
+            </TabsTrigger>
+          </TabsList>
+
+          {/* Search and Filters */}
+          <div className="flex items-center gap-4">
+            <div className="relative w-64">
+              <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+              <Input
+                placeholder="Search tools..."
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+                className="pl-10"
+              />
+            </div>
+            <Select defaultValue="all">
+              <SelectTrigger className="w-48">
+                <Filter className="h-4 w-4 mr-2" />
+                <SelectValue placeholder="Quick Filter" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="all">All Tools</SelectItem>
+                <SelectItem value="active">Active</SelectItem>
+                <SelectItem value="draft">Draft</SelectItem>
+                <SelectItem value="mcp">MCP Tools</SelectItem>
+                <SelectItem value="utilities">Utilities</SelectItem>
+                <SelectItem value="communication">Communication</SelectItem>
+                <SelectItem value="data">Data & APIs</SelectItem>
+                <SelectItem value="web">Web & Search</SelectItem>
+                <SelectItem value="content">Content & Media</SelectItem>
+              </SelectContent>
+            </Select>
+          </div>
+        </div>
 
         <TabsContent value="all" className="space-y-6">
           {toolCategories.map((category) => {
@@ -593,9 +607,9 @@ const AgentTools: React.FC = () => {
                     })}
                   </div>
                   {category.id === "mcp-tools" && categoryTools.length > 3 && (
-                    <div className="mt-4 text-center">
+                    <div className="mt-4 text-right">
                       <Button
-                        variant="outline"
+                        className="bg-blue-600 hover:bg-blue-700 text-white"
                         onClick={() => setShowMoreMCP(!showMoreMCP)}
                       >
                         {showMoreMCP ? "Show less" : "Show more"}
@@ -603,9 +617,9 @@ const AgentTools: React.FC = () => {
                     </div>
                   )}
                   {category.id === "utilities" && categoryTools.length > 3 && (
-                    <div className="mt-4 text-center">
+                    <div className="mt-4 text-right">
                       <Button
-                        variant="outline"
+                        className="bg-blue-600 hover:bg-blue-700 text-white"
                         onClick={() => setShowMoreUtilities(!showMoreUtilities)}
                       >
                         {showMoreUtilities ? "Show less" : "Show more"}
@@ -615,9 +629,9 @@ const AgentTools: React.FC = () => {
                   {category.showMore &&
                     category.id !== "mcp-tools" &&
                     category.id !== "utilities" && (
-                      <div className="mt-4 text-center">
-                        <Button variant="link" className="text-primary">
-                          [Show more]
+                      <div className="mt-4 text-right">
+                        <Button className="bg-blue-600 hover:bg-blue-700 text-white">
+                          Show more
                         </Button>
                       </div>
                     )}

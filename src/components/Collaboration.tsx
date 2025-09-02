@@ -36,6 +36,158 @@ const Collaboration: React.FC = () => {
   const [statusFilter, setStatusFilter] = useState("all");
   const [draggedItem, setDraggedItem] = useState<any>(null);
   const [draggedFromColumn, setDraggedFromColumn] = useState<string>("");
+  const [isDragging, setIsDragging] = useState(false);
+  const [dragOverColumn, setDragOverColumn] = useState<string>("");
+
+  // State for managing cards in different columns
+  const [columnData, setColumnData] = useState({
+    "ai-executed": [
+      {
+        id: 1,
+        title: "Customer inquiry auto-response",
+        agent: "Support Agent",
+        time: "2min ago",
+        priority: "High",
+      },
+      {
+        id: 2,
+        title: "Lead qualification completed",
+        agent: "Sales Agent",
+        time: "5min ago",
+        priority: "Medium",
+      },
+      {
+        id: 3,
+        title: "Invoice processing automated",
+        agent: "Finance Agent",
+        time: "8min ago",
+        priority: "Low",
+      },
+      {
+        id: 4,
+        title: "Email campaign sent",
+        agent: "Marketing Agent",
+        time: "12min ago",
+        priority: "Medium",
+      },
+    ],
+    "ai-failed": [
+      {
+        id: 5,
+        title: "API rate limit exceeded",
+        agent: "Data Agent",
+        time: "15 min ago",
+        error: "Rate limit",
+      },
+      {
+        id: 6,
+        title: "Payment processing failed",
+        agent: "Payment Agent",
+        time: "25 min ago",
+        error: "Auth failed",
+      },
+      {
+        id: 7,
+        title: "Email delivery bounced",
+        agent: "Email Agent",
+        time: "1 hour ago",
+        error: "Invalid email",
+      },
+    ],
+    "awaiting-approval": [
+      {
+        id: 8,
+        title: "High-value contract negotiation",
+        agent: "Sales Agent",
+        time: "5 min ago",
+        priority: "High",
+        value: "$50,000",
+      },
+      {
+        id: 9,
+        title: "Employee termination process",
+        agent: "HR Agent",
+        time: "15 min ago",
+        priority: "Critical",
+        value: "Sensitive",
+      },
+      {
+        id: 10,
+        title: "Large expense approval",
+        agent: "Finance Agent",
+        time: "30 min ago",
+        priority: "High",
+        value: "$25,000",
+      },
+      {
+        id: 11,
+        title: "Legal document review",
+        agent: "Legal Agent",
+        time: "45 min ago",
+        priority: "Medium",
+        value: "Contract",
+      },
+    ],
+    "human-approved": [
+      {
+        id: 12,
+        title: "Enterprise software purchase",
+        approver: "John Doe",
+        time: "1 hour ago",
+        value: "$75,000",
+        status: "Executed",
+      },
+      {
+        id: 13,
+        title: "Marketing campaign launch",
+        approver: "Sarah Wilson",
+        time: "2 hours ago",
+        value: "$15,000",
+        status: "In Progress",
+      },
+      {
+        id: 14,
+        title: "New hire onboarding",
+        approver: "Emily Chen",
+        time: "3 hours ago",
+        value: "HR Process",
+        status: "Completed",
+      },
+      {
+        id: 15,
+        title: "Vendor contract renewal",
+        approver: "Mike Johnson",
+        time: "4 hours ago",
+        value: "$30,000",
+        status: "Pending",
+      },
+    ],
+    "human-rejected": [
+      {
+        id: 16,
+        title: "Social media post content",
+        rejector: "Mike Johnson",
+        time: "1 hour ago",
+        reason: "Policy violation",
+      },
+      {
+        id: 17,
+        title: "Aggressive pricing strategy",
+        rejector: "Sarah Wilson",
+        time: "3 hours ago",
+        reason: "Risk too high",
+      },
+    ],
+    "timeout-expired": [
+      {
+        id: 18,
+        title: "Document review request",
+        time: "3 hours ago",
+        timeout: "2 hour timeout",
+        originalValue: "$12,000",
+      },
+    ],
+  });
 
   const teamMembers = [
     {
@@ -178,7 +330,9 @@ const Collaboration: React.FC = () => {
   ) => {
     setDraggedItem(item);
     setDraggedFromColumn(fromColumn);
+    setIsDragging(true);
     e.dataTransfer.effectAllowed = "move";
+    e.dataTransfer.setData("text/plain", JSON.stringify({ item, fromColumn }));
   };
 
   const handleDragOver = (e: React.DragEvent) => {
@@ -186,15 +340,54 @@ const Collaboration: React.FC = () => {
     e.dataTransfer.dropEffect = "move";
   };
 
+  const handleDragEnter = (e: React.DragEvent, column: string) => {
+    e.preventDefault();
+    setDragOverColumn(column);
+  };
+
+  const handleDragLeave = (e: React.DragEvent) => {
+    e.preventDefault();
+    // Only clear drag over if we're leaving the drop zone entirely
+    if (!e.currentTarget.contains(e.relatedTarget as Node)) {
+      setDragOverColumn("");
+    }
+  };
+
   const handleDrop = (e: React.DragEvent, toColumn: string) => {
     e.preventDefault();
+    setDragOverColumn("");
+    setIsDragging(false);
+
     if (draggedItem && draggedFromColumn !== toColumn) {
-      console.log(
-        `Moving item from ${draggedFromColumn} to ${toColumn}:`,
+      // Remove item from source column
+      const sourceItems = columnData[
+        draggedFromColumn as keyof typeof columnData
+      ].filter((item: any) => item.id !== draggedItem.id);
+
+      // Add item to destination column
+      const destinationItems = [
+        ...columnData[toColumn as keyof typeof columnData],
         draggedItem,
+      ];
+
+      // Update state
+      setColumnData((prev) => ({
+        ...prev,
+        [draggedFromColumn]: sourceItems,
+        [toColumn]: destinationItems,
+      }));
+
+      console.log(
+        `Successfully moved "${draggedItem.title}" from ${draggedFromColumn} to ${toColumn}`,
       );
-      // Here you would implement the actual logic to move the item between columns
     }
+    setDraggedItem(null);
+    setDraggedFromColumn("");
+  };
+
+  const handleDragEnd = () => {
+    setIsDragging(false);
+    setDragOverColumn("");
     setDraggedItem(null);
     setDraggedFromColumn("");
   };
@@ -263,57 +456,42 @@ const Collaboration: React.FC = () => {
                       AI Executed
                     </span>
                     <Badge className="ml-auto bg-gray-300 text-gray-700 text-xs px-2 py-0.5">
-                      4
+                      {columnData["ai-executed"].length}
                     </Badge>
                   </div>
                   <div
-                    className="p-3 space-y-3 min-h-[500px]"
+                    className={`p-3 space-y-3 min-h-[500px] transition-colors ${
+                      dragOverColumn === "ai-executed"
+                        ? "bg-blue-50 border-2 border-blue-300 border-dashed"
+                        : ""
+                    }`}
                     onDragOver={handleDragOver}
+                    onDragEnter={(e) => handleDragEnter(e, "ai-executed")}
+                    onDragLeave={handleDragLeave}
                     onDrop={(e) => handleDrop(e, "ai-executed")}
                   >
-                    {[
-                      {
-                        id: 1,
-                        title: "Customer inquiry auto-response",
-                        agent: "Support Agent",
-                        time: "2min ago",
-                        priority: "High",
-                      },
-                      {
-                        id: 2,
-                        title: "Lead qualification completed",
-                        agent: "Sales Agent",
-                        time: "5min ago",
-                        priority: "Medium",
-                      },
-                      {
-                        id: 3,
-                        title: "Invoice processing automated",
-                        agent: "Finance Agent",
-                        time: "8min ago",
-                        priority: "Low",
-                      },
-                      {
-                        id: 4,
-                        title: "Email campaign sent",
-                        agent: "Marketing Agent",
-                        time: "12min ago",
-                        priority: "Medium",
-                      },
-                    ].map((item) => (
+                    {columnData["ai-executed"].map((item) => (
                       <Card
                         key={item.id}
-                        className="p-3 bg-white border border-gray-200 cursor-move hover:shadow-md transition-shadow rounded-md"
+                        className={`p-3 bg-white border border-gray-200 cursor-move hover:shadow-md transition-all rounded-md ${
+                          draggedItem?.id === item.id
+                            ? "opacity-50 scale-95"
+                            : ""
+                        }`}
                         draggable
                         onDragStart={(e) =>
                           handleDragStart(e, item, "ai-executed")
                         }
+                        onDragEnd={handleDragEnd}
                       >
                         <div className="space-y-2">
                           <div className="flex items-start justify-between">
-                            <h4 className="text-sm font-medium text-gray-900">
-                              {item.title}
-                            </h4>
+                            <div className="flex items-center gap-2">
+                              <GripVertical className="h-4 w-4 text-gray-400 cursor-grab" />
+                              <h4 className="text-sm font-medium text-gray-900">
+                                {item.title}
+                              </h4>
+                            </div>
                             <Badge
                               className={`text-xs px-2 py-0.5 ${
                                 item.priority === "Critical"
@@ -346,52 +524,44 @@ const Collaboration: React.FC = () => {
                       Execution failed / aborted
                     </span>
                     <Badge className="ml-auto bg-gray-300 text-gray-700 text-xs px-2 py-0.5">
-                      3
+                      {columnData["ai-failed"].length}
                     </Badge>
                   </div>
                   <div
-                    className="p-3 space-y-3 min-h-[500px]"
+                    className={`p-3 space-y-3 min-h-[500px] transition-colors ${
+                      dragOverColumn === "ai-failed"
+                        ? "bg-red-50 border-2 border-red-300 border-dashed"
+                        : ""
+                    }`}
                     onDragOver={handleDragOver}
+                    onDragEnter={(e) => handleDragEnter(e, "ai-failed")}
+                    onDragLeave={handleDragLeave}
                     onDrop={(e) => handleDrop(e, "ai-failed")}
                   >
-                    {[
-                      {
-                        id: 1,
-                        title: "API rate limit exceeded",
-                        agent: "Data Agent",
-                        time: "15 min ago",
-                        error: "Rate limit",
-                      },
-                      {
-                        id: 2,
-                        title: "Payment processing failed",
-                        agent: "Payment Agent",
-                        time: "25 min ago",
-                        error: "Auth failed",
-                      },
-                      {
-                        id: 3,
-                        title: "Email delivery bounced",
-                        agent: "Email Agent",
-                        time: "1 hour ago",
-                        error: "Invalid email",
-                      },
-                    ].map((item) => (
+                    {columnData["ai-failed"].map((item) => (
                       <Card
                         key={item.id}
-                        className="p-3 bg-white border border-gray-200 cursor-move hover:shadow-md transition-shadow rounded-md"
+                        className={`p-3 bg-white border border-gray-200 cursor-move hover:shadow-md transition-all rounded-md ${
+                          draggedItem?.id === item.id
+                            ? "opacity-50 scale-95"
+                            : ""
+                        }`}
                         draggable
                         onDragStart={(e) =>
                           handleDragStart(e, item, "ai-failed")
                         }
+                        onDragEnd={handleDragEnd}
                       >
                         <div className="space-y-2">
                           <div className="flex items-start justify-between">
-                            <h4 className="text-sm font-medium text-gray-900">
-                              {item.title}
-                            </h4>
+                            <div className="flex items-center gap-2">
+                              <GripVertical className="h-4 w-4 text-gray-400 cursor-grab" />
+                              <h4 className="text-sm font-medium text-gray-900">
+                                {item.title}
+                              </h4>
+                            </div>
                             <Badge className="bg-red-100 text-red-700 text-xs px-2 py-0.5">
-                              {item.error}
+                              {(item as any).error}
                             </Badge>
                           </div>
                           <div className="flex items-center justify-between text-xs text-gray-600">
@@ -422,68 +592,51 @@ const Collaboration: React.FC = () => {
                       Awaiting Human Approval
                     </span>
                     <Badge className="ml-auto bg-gray-300 text-gray-700 text-xs px-2 py-0.5">
-                      4
+                      {columnData["awaiting-approval"].length}
                     </Badge>
                   </div>
                   <div
-                    className="p-3 space-y-3 min-h-[500px]"
+                    className={`p-3 space-y-3 min-h-[500px] transition-colors ${
+                      dragOverColumn === "awaiting-approval"
+                        ? "bg-orange-50 border-2 border-orange-300 border-dashed"
+                        : ""
+                    }`}
                     onDragOver={handleDragOver}
+                    onDragEnter={(e) => handleDragEnter(e, "awaiting-approval")}
+                    onDragLeave={handleDragLeave}
                     onDrop={(e) => handleDrop(e, "awaiting-approval")}
                   >
-                    {[
-                      {
-                        id: 1,
-                        title: "High-value contract negotiation",
-                        agent: "Sales Agent",
-                        time: "5 min ago",
-                        priority: "High",
-                        value: "$50,000",
-                      },
-                      {
-                        id: 2,
-                        title: "Employee termination process",
-                        agent: "HR Agent",
-                        time: "15 min ago",
-                        priority: "Critical",
-                        value: "Sensitive",
-                      },
-                      {
-                        id: 3,
-                        title: "Large expense approval",
-                        agent: "Finance Agent",
-                        time: "30 min ago",
-                        priority: "High",
-                        value: "$25,000",
-                      },
-                      {
-                        id: 4,
-                        title: "Legal document review",
-                        agent: "Legal Agent",
-                        time: "45 min ago",
-                        priority: "Medium",
-                        value: "Contract",
-                      },
-                    ].map((item) => (
+                    {columnData["awaiting-approval"].map((item) => (
                       <Card
                         key={item.id}
-                        className="p-3 bg-white border border-gray-200 cursor-move hover:shadow-md transition-shadow rounded-md"
+                        className={`p-3 bg-white border border-gray-200 cursor-move hover:shadow-md transition-all rounded-md ${
+                          draggedItem?.id === item.id
+                            ? "opacity-50 scale-95"
+                            : ""
+                        }`}
                         draggable
                         onDragStart={(e) =>
                           handleDragStart(e, item, "awaiting-approval")
                         }
+                        onDragEnd={handleDragEnd}
                       >
                         <div className="space-y-2">
                           <div className="flex items-start justify-between">
-                            <h4 className="text-sm font-medium text-gray-900">
-                              {item.title}
-                            </h4>
+                            <div className="flex items-center gap-2">
+                              <GripVertical className="h-4 w-4 text-gray-400 cursor-grab" />
+                              <h4 className="text-sm font-medium text-gray-900">
+                                {item.title}
+                              </h4>
+                            </div>
                             <Badge className="bg-red-100 text-red-700 text-xs px-2 py-0.5">
                               {item.priority}
                             </Badge>
                           </div>
                           <div className="flex items-center justify-between text-xs text-gray-600">
                             <span>{item.agent}</span>
-                            <span className="font-medium">{item.value}</span>
+                            <span className="font-medium">
+                              {(item as any).value}
+                            </span>
                           </div>
                           <div className="flex items-center justify-between">
                             <span className="text-xs text-gray-500">
@@ -522,78 +675,61 @@ const Collaboration: React.FC = () => {
                       Human Approved / AI Executed
                     </span>
                     <Badge className="ml-auto bg-gray-300 text-gray-700 text-xs px-2 py-0.5">
-                      4
+                      {columnData["human-approved"].length}
                     </Badge>
                   </div>
                   <div
-                    className="p-3 space-y-3 min-h-[500px]"
+                    className={`p-3 space-y-3 min-h-[500px] transition-colors ${
+                      dragOverColumn === "human-approved"
+                        ? "bg-green-50 border-2 border-green-300 border-dashed"
+                        : ""
+                    }`}
                     onDragOver={handleDragOver}
+                    onDragEnter={(e) => handleDragEnter(e, "human-approved")}
+                    onDragLeave={handleDragLeave}
                     onDrop={(e) => handleDrop(e, "human-approved")}
                   >
-                    {[
-                      {
-                        id: 1,
-                        title: "Enterprise software purchase",
-                        approver: "John Doe",
-                        time: "1 hour ago",
-                        value: "$75,000",
-                        status: "Executed",
-                      },
-                      {
-                        id: 2,
-                        title: "Marketing campaign launch",
-                        approver: "Sarah Wilson",
-                        time: "2 hours ago",
-                        value: "$15,000",
-                        status: "In Progress",
-                      },
-                      {
-                        id: 3,
-                        title: "New hire onboarding",
-                        approver: "Emily Chen",
-                        time: "3 hours ago",
-                        value: "HR Process",
-                        status: "Completed",
-                      },
-                      {
-                        id: 4,
-                        title: "Vendor contract renewal",
-                        approver: "Mike Johnson",
-                        time: "4 hours ago",
-                        value: "$30,000",
-                        status: "Pending",
-                      },
-                    ].map((item) => (
+                    {columnData["human-approved"].map((item) => (
                       <Card
                         key={item.id}
-                        className="p-3 bg-white border border-gray-200 cursor-move hover:shadow-md transition-shadow rounded-md"
+                        className={`p-3 bg-white border border-gray-200 cursor-move hover:shadow-md transition-all rounded-md ${
+                          draggedItem?.id === item.id
+                            ? "opacity-50 scale-95"
+                            : ""
+                        }`}
                         draggable
                         onDragStart={(e) =>
                           handleDragStart(e, item, "human-approved")
                         }
+                        onDragEnd={handleDragEnd}
                       >
                         <div className="space-y-2">
                           <div className="flex items-start justify-between">
-                            <h4 className="text-sm font-medium text-gray-900">
-                              {item.title}
-                            </h4>
+                            <div className="flex items-center gap-2">
+                              <GripVertical className="h-4 w-4 text-gray-400 cursor-grab" />
+                              <h4 className="text-sm font-medium text-gray-900">
+                                {item.title}
+                              </h4>
+                            </div>
                             <Badge
                               className={`text-xs px-2 py-0.5 ${
-                                item.status === "Executed"
+                                (item as any).status === "Executed"
                                   ? "bg-green-100 text-green-700"
-                                  : item.status === "Completed"
+                                  : (item as any).status === "Completed"
                                     ? "bg-blue-100 text-blue-700"
-                                    : item.status === "In Progress"
+                                    : (item as any).status === "In Progress"
                                       ? "bg-yellow-100 text-yellow-700"
                                       : "bg-gray-100 text-gray-700"
                               }`}
                             >
-                              {item.status}
+                              {(item as any).status}
                             </Badge>
                           </div>
                           <div className="flex items-center justify-between text-xs text-gray-600">
-                            <span>Approved by {item.approver}</span>
-                            <span className="font-medium">{item.value}</span>
+                            <span>Approved by {(item as any).approver}</span>
+                            <span className="font-medium">
+                              {(item as any).value}
+                            </span>
                           </div>
                           <div className="flex items-center justify-between">
                             <span className="text-xs text-gray-500">
@@ -630,49 +766,48 @@ const Collaboration: React.FC = () => {
                       Human Rejected
                     </span>
                     <Badge className="ml-auto bg-gray-300 text-gray-700 text-xs px-2 py-0.5">
-                      2
+                      {columnData["human-rejected"].length}
                     </Badge>
                   </div>
                   <div
-                    className="p-3 space-y-3 min-h-[500px]"
+                    className={`p-3 space-y-3 min-h-[500px] transition-colors ${
+                      dragOverColumn === "human-rejected"
+                        ? "bg-red-50 border-2 border-red-300 border-dashed"
+                        : ""
+                    }`}
                     onDragOver={handleDragOver}
+                    onDragEnter={(e) => handleDragEnter(e, "human-rejected")}
+                    onDragLeave={handleDragLeave}
                     onDrop={(e) => handleDrop(e, "human-rejected")}
                   >
-                    {[
-                      {
-                        id: 1,
-                        title: "Social media post content",
-                        rejector: "Mike Johnson",
-                        time: "1 hour ago",
-                        reason: "Policy violation",
-                      },
-                      {
-                        id: 2,
-                        title: "Aggressive pricing strategy",
-                        rejector: "Sarah Wilson",
-                        time: "3 hours ago",
-                        reason: "Risk too high",
-                      },
-                    ].map((item) => (
+                    {columnData["human-rejected"].map((item) => (
                       <Card
                         key={item.id}
-                        className="p-3 bg-white border border-gray-200 cursor-move hover:shadow-md transition-shadow rounded-md"
+                        className={`p-3 bg-white border border-gray-200 cursor-move hover:shadow-md transition-all rounded-md ${
+                          draggedItem?.id === item.id
+                            ? "opacity-50 scale-95"
+                            : ""
+                        }`}
                         draggable
                         onDragStart={(e) =>
                           handleDragStart(e, item, "human-rejected")
                         }
+                        onDragEnd={handleDragEnd}
                       >
                         <div className="space-y-2">
                           <div className="flex items-start justify-between">
-                            <h4 className="text-sm font-medium text-gray-900">
-                              {item.title}
-                            </h4>
+                            <div className="flex items-center gap-2">
+                              <GripVertical className="h-4 w-4 text-gray-400 cursor-grab" />
+                              <h4 className="text-sm font-medium text-gray-900">
+                                {item.title}
+                              </h4>
+                            </div>
                             <Badge className="bg-red-100 text-red-700 text-xs px-2 py-0.5">
-                              {item.reason}
+                              {(item as any).reason}
                             </Badge>
                           </div>
                           <div className="flex items-center justify-between text-xs text-gray-600">
-                            <span>Rejected by {item.rejector}</span>
+                            <span>Rejected by {(item as any).rejector}</span>
                             <span>{item.time}</span>
                           </div>
                         </div>
@@ -689,44 +824,50 @@ const Collaboration: React.FC = () => {
                       Timeout/Expired
                     </span>
                     <Badge className="ml-auto bg-gray-300 text-gray-700 text-xs px-2 py-0.5">
-                      1
+                      {columnData["timeout-expired"].length}
                     </Badge>
                   </div>
                   <div
-                    className="p-3 space-y-3 min-h-[500px]"
+                    className={`p-3 space-y-3 min-h-[500px] transition-colors ${
+                      dragOverColumn === "timeout-expired"
+                        ? "bg-yellow-50 border-2 border-yellow-300 border-dashed"
+                        : ""
+                    }`}
                     onDragOver={handleDragOver}
+                    onDragEnter={(e) => handleDragEnter(e, "timeout-expired")}
+                    onDragLeave={handleDragLeave}
                     onDrop={(e) => handleDrop(e, "timeout-expired")}
                   >
-                    {[
-                      {
-                        id: 1,
-                        title: "Document review request",
-                        time: "3 hours ago",
-                        timeout: "2 hour timeout",
-                        originalValue: "$12,000",
-                      },
-                    ].map((item) => (
+                    {columnData["timeout-expired"].map((item) => (
                       <Card
                         key={item.id}
-                        className="p-3 bg-white border border-gray-200 cursor-move hover:shadow-md transition-shadow rounded-md"
+                        className={`p-3 bg-white border border-gray-200 cursor-move hover:shadow-md transition-all rounded-md ${
+                          draggedItem?.id === item.id
+                            ? "opacity-50 scale-95"
+                            : ""
+                        }`}
                         draggable
                         onDragStart={(e) =>
                           handleDragStart(e, item, "timeout-expired")
                         }
+                        onDragEnd={handleDragEnd}
                       >
                         <div className="space-y-2">
                           <div className="flex items-start justify-between">
-                            <h4 className="text-sm font-medium text-gray-900">
-                              {item.title}
-                            </h4>
+                            <div className="flex items-center gap-2">
+                              <GripVertical className="h-4 w-4 text-gray-400 cursor-grab" />
+                              <h4 className="text-sm font-medium text-gray-900">
+                                {item.title}
+                              </h4>
+                            </div>
                             <Badge className="bg-orange-100 text-orange-700 text-xs px-2 py-0.5">
                               Expired
                             </Badge>
                           </div>
                           <div className="flex items-center justify-between text-xs text-gray-600">
-                            <span>{item.timeout}</span>
+                            <span>{(item as any).timeout}</span>
                             <span className="font-medium">
-                              {item.originalValue}
+                              {(item as any).originalValue}
                             </span>
                           </div>
                           <div className="text-xs text-gray-500">

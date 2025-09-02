@@ -88,7 +88,7 @@ const FlowCanvas: React.FC<FlowCanvasProps> = ({
     {
       id: "webhook-1",
       type: "webhook",
-      position: { x: 50, y: -50 },
+      position: { x: 50, y: 50 },
       data: { label: "Webhook", toolMode: true },
     },
     {
@@ -100,25 +100,25 @@ const FlowCanvas: React.FC<FlowCanvasProps> = ({
     {
       id: "sharepoint-1",
       type: "sharepoint",
-      position: { x: 50, y: 780 },
+      position: { x: 50, y: 850 },
       data: { label: "SharePoint", toolMode: true },
     },
     {
       id: "salesforce-1",
       type: "salesforce-crm",
-      position: { x: 420, y: 780 },
+      position: { x: 480, y: 850 },
       data: { label: "Salesforce CRM", toolMode: true },
     },
     {
       id: "postgresql-1",
       type: "postgresql",
-      position: { x: 790, y: 780 },
+      position: { x: 910, y: 850 },
       data: { label: "PostgreSQL", toolMode: true },
     },
     {
       id: "agent-1",
       type: "agent",
-      position: { x: 500, y: 120 },
+      position: { x: 600, y: 120 },
       data: {
         label: "Major Incident Swarmer AI",
         instructions:
@@ -128,19 +128,19 @@ const FlowCanvas: React.FC<FlowCanvasProps> = ({
     {
       id: "teams-slack-1",
       type: "ms-teams-slack",
-      position: { x: 1200, y: 50 },
+      position: { x: 1350, y: 50 },
       data: { label: "MS Teams / Slack", toolMode: true },
     },
     {
       id: "observe-1",
       type: "observe",
-      position: { x: 1200, y: 350 },
+      position: { x: 1350, y: 350 },
       data: { label: "Observe" },
     },
     {
       id: "output-1",
       type: "output",
-      position: { x: 1200, y: 650 },
+      position: { x: 1350, y: 650 },
       data: { label: "Output" },
     },
   ]);
@@ -169,6 +169,8 @@ const FlowCanvas: React.FC<FlowCanvasProps> = ({
     start: { x: number; y: number };
     end: { x: number; y: number };
   } | null>(null);
+  const [animatingEdges, setAnimatingEdges] = useState<Set<string>>(new Set());
+  const [animationStartTime, setAnimationStartTime] = useState<number>(0);
 
   const handleCanvasMouseDown = (e: React.MouseEvent) => {
     const target = e.target as HTMLElement;
@@ -220,6 +222,51 @@ const FlowCanvas: React.FC<FlowCanvasProps> = ({
     e.stopPropagation();
     setSelectedNode(node);
     setSelectedEdge(null);
+
+    // Check if this is a trigger or tool node connected to agent input
+    const isTriggerOrTool = [
+      "webhook",
+      "confluence",
+      "sharepoint",
+      "salesforce-crm",
+      "postgresql",
+      "ms-teams-slack",
+    ].includes(node.type);
+
+    if (isTriggerOrTool) {
+      // Find edges connected to this node that go to an agent
+      const connectedEdges = edges.filter((edge) => {
+        const targetNode = nodes.find((n) => n.id === edge.target);
+        return edge.source === node.id && targetNode?.type === "agent";
+      });
+
+      if (connectedEdges.length > 0) {
+        const edgeIds = new Set(connectedEdges.map((edge) => edge.id));
+        setAnimatingEdges(edgeIds);
+        setAnimationStartTime(Date.now());
+      }
+    }
+
+    // Check if this is an agent node - animate output connections
+    if (node.type === "agent") {
+      // Find edges connected from this agent to output nodes
+      const outputEdges = edges.filter((edge) => {
+        const targetNode = nodes.find((n) => n.id === edge.target);
+        return (
+          edge.source === node.id &&
+          ["ms-teams-slack", "observe", "output"].includes(
+            targetNode?.type || "",
+          )
+        );
+      });
+
+      if (outputEdges.length > 0) {
+        const edgeIds = new Set(outputEdges.map((edge) => edge.id));
+        setAnimatingEdges(edgeIds);
+        setAnimationStartTime(Date.now());
+      }
+    }
+
     // Don't trigger configuration panel on node click
     // onNodeSelect(node);
   };
@@ -450,6 +497,7 @@ const FlowCanvas: React.FC<FlowCanvasProps> = ({
     setIsConnecting(false);
     setConnectionStart(null);
     setConnectionLine(null);
+    setAnimatingEdges(new Set());
     onNodeSelect(null);
     onEdgeSelect(null);
   };
@@ -562,6 +610,17 @@ const FlowCanvas: React.FC<FlowCanvasProps> = ({
           >
             <polygon points="0 0, 10 3.5, 0 7" fill="#3b82f6" />
           </marker>
+          <marker
+            id="flowArrow"
+            markerWidth="8"
+            markerHeight="6"
+            refX="7"
+            refY="3"
+            orient="auto"
+            markerUnits="strokeWidth"
+          >
+            <polygon points="0 0, 8 3, 0 6" fill="#10b981" />
+          </marker>
         </defs>
         {edges.map((edge) => {
           const sourceNode = nodes.find((n) => n.id === edge.source);
@@ -630,6 +689,7 @@ const FlowCanvas: React.FC<FlowCanvasProps> = ({
           const path = `M ${sourceX} ${sourceY} C ${sourceX + controlPointOffset} ${sourceY}, ${targetX - controlPointOffset} ${targetY}, ${targetX} ${targetY}`;
 
           const isSelected = selectedEdge?.id === edge.id;
+          const isAnimating = animatingEdges.has(edge.id);
           const isWebhookConnection =
             edge.source === "webhook-1" || edge.target === "webhook-1";
           const strokeColor = isSelected
@@ -646,7 +706,7 @@ const FlowCanvas: React.FC<FlowCanvasProps> = ({
                 stroke={isSelected ? "#3b82f6" : "#94a3b8"}
                 strokeWidth={isSelected ? 4 : 3}
                 fill="none"
-                opacity="0.3"
+                opacity={isAnimating ? "0.1" : "0.3"}
                 filter="url(#glow)"
                 className="pointer-events-none"
                 vectorEffect="non-scaling-stroke"
@@ -663,12 +723,22 @@ const FlowCanvas: React.FC<FlowCanvasProps> = ({
                 vectorEffect="non-scaling-stroke"
                 pointerEvents="stroke"
                 style={{
-                  strokeDasharray: isSelected ? "none" : "none",
+                  strokeDasharray: isAnimating
+                    ? "8,4"
+                    : isSelected
+                      ? "none"
+                      : "none",
+                  opacity: isAnimating ? 0.6 : 1,
                   filter: isSelected
                     ? "drop-shadow(0 0 6px rgba(59, 130, 246, 0.5))"
                     : "none",
                 }}
               />
+
+              {/* Animated flow arrow */}
+              {animatingEdges.has(edge.id) && (
+                <AnimatedFlowArrow path={path} startTime={animationStartTime} />
+              )}
 
               {/* Delete button when selected */}
               {isSelected && (
@@ -881,6 +951,133 @@ const FlowCanvas: React.FC<FlowCanvasProps> = ({
               />
             </svg>
           )}
+
+          {/* Render indicator blocks */}
+          {nodes.map((node) => {
+            const shouldShowIndicator = [
+              "webhook",
+              "confluence",
+              "sharepoint",
+              "salesforce-crm",
+              "postgresql",
+              "ms-teams-slack",
+              "output",
+              "observe",
+            ].includes(node.type);
+
+            if (!shouldShowIndicator) return null;
+
+            const isWebhook = node.type === "webhook";
+            const isOutput = node.type === "output";
+            const isObserve = node.type === "observe";
+            const isMSTeams = node.type === "ms-teams-slack";
+            let indicatorText, bgColor, textColor, borderColor;
+
+            if (isWebhook) {
+              indicatorText = "Trigger";
+              bgColor = "#E79B04";
+              textColor = "#FFFFFF";
+              borderColor = "#B8860B";
+            } else if (isOutput) {
+              indicatorText = "Output";
+              bgColor = "#229F54";
+              textColor = "#FFFFFF";
+              borderColor = "#2563EB";
+            } else if (isObserve) {
+              indicatorText = "Processing";
+              bgColor = "#E79B04";
+              textColor = "#FFFFFF";
+              borderColor = "#B8860B";
+            } else if (isMSTeams) {
+              indicatorText = "Channel output";
+              bgColor = "#229F54";
+              textColor = "#FFFFFF";
+              borderColor = "#2563EB";
+            } else {
+              indicatorText = "Tool";
+              bgColor = "#2563EB";
+              textColor = "#FFFFFF";
+              borderColor = "#2563EB";
+            }
+
+            // Use fixed heights that match the actual component card heights
+            let componentHeight = 200; // Base height for all components
+
+            if (node.data.toolMode) {
+              switch (node.type) {
+                case "webhook":
+                  componentHeight = 280;
+                  break;
+                case "confluence":
+                  componentHeight = 240;
+                  break;
+                case "sharepoint":
+                  componentHeight = 240;
+                  break;
+                case "salesforce-crm":
+                  componentHeight = 240;
+                  break;
+                case "postgresql":
+                  componentHeight = 240;
+                  break;
+                case "ms-teams-slack":
+                  componentHeight = 240;
+                  break;
+                default:
+                  componentHeight = 200;
+              }
+            } else {
+              // Heights for non-tool mode components
+              switch (node.type) {
+                case "webhook":
+                  componentHeight = 200;
+                  break;
+                case "confluence":
+                case "sharepoint":
+                case "salesforce-crm":
+                case "postgresql":
+                case "ms-teams-slack":
+                  componentHeight = 200;
+                  break;
+                case "output":
+                  componentHeight = 200;
+                  break;
+                case "observe":
+                  componentHeight = 200;
+                  break;
+                default:
+                  componentHeight = 200;
+              }
+            }
+
+            return (
+              <div
+                key={`indicator-${node.id}`}
+                className={`absolute px-2 text-xs font-medium border`}
+                style={{
+                  left: `${node.position.x - 20}px`,
+                  top: `${node.position.y}px`,
+                  transform: "rotate(180deg)",
+                  borderTopRightRadius: "8px",
+                  borderBottomRightRadius: "8px",
+                  borderLeft: "none",
+                  writingMode: "vertical-rl",
+                  textOrientation: "sideways",
+                  height: `100px`,
+                  width: "20px",
+                  display: "flex",
+                  alignItems: "center",
+                  justifyContent: "center",
+                  zIndex: 4,
+                  backgroundColor: bgColor,
+                  color: textColor,
+                  borderColor: borderColor,
+                }}
+              >
+                {indicatorText}
+              </div>
+            );
+          })}
 
           {/* Render nodes */}
           {nodes.map((node) => (
@@ -2660,6 +2857,93 @@ const NodeComponent: React.FC<NodeComponentProps> = ({
         </DialogContent>
       </Dialog>
     </div>
+  );
+};
+
+// Animated Flow Arrow Component
+interface AnimatedFlowArrowProps {
+  path: string;
+  startTime: number;
+}
+
+const AnimatedFlowArrow: React.FC<AnimatedFlowArrowProps> = ({
+  path,
+  startTime,
+}) => {
+  const [currentTime, setCurrentTime] = useState(Date.now());
+
+  useEffect(() => {
+    const interval = setInterval(() => {
+      setCurrentTime(Date.now());
+    }, 16); // ~60fps
+
+    return () => clearInterval(interval);
+  }, []);
+
+  // Calculate animation progress (0 to 1, repeating every 2 seconds)
+  const elapsed = (currentTime - startTime) / 1000; // Convert to seconds
+  const progress = (elapsed % 2) / 2; // 2-second cycle
+
+  // Parse the curved path to get control points
+  const pathMatch = path.match(
+    /M\s*([\d.-]+)\s*([\d.-]+)\s*C\s*([\d.-]+)\s*([\d.-]+),\s*([\d.-]+)\s*([\d.-]+),\s*([\d.-]+)\s*([\d.-]+)/,
+  );
+  if (!pathMatch) return null;
+
+  const startX = parseFloat(pathMatch[1]);
+  const startY = parseFloat(pathMatch[2]);
+  const cp1X = parseFloat(pathMatch[3]);
+  const cp1Y = parseFloat(pathMatch[4]);
+  const cp2X = parseFloat(pathMatch[5]);
+  const cp2Y = parseFloat(pathMatch[6]);
+  const endX = parseFloat(pathMatch[7]);
+  const endY = parseFloat(pathMatch[8]);
+
+  // Calculate position along the cubic Bezier curve
+  const t = progress;
+  const oneMinusT = 1 - t;
+  const oneMinusTSquared = oneMinusT * oneMinusT;
+  const oneMinusTCubed = oneMinusTSquared * oneMinusT;
+  const tSquared = t * t;
+  const tCubed = tSquared * t;
+
+  const currentX =
+    oneMinusTCubed * startX +
+    3 * oneMinusTSquared * t * cp1X +
+    3 * oneMinusT * tSquared * cp2X +
+    tCubed * endX;
+  const currentY =
+    oneMinusTCubed * startY +
+    3 * oneMinusTSquared * t * cp1Y +
+    3 * oneMinusT * tSquared * cp2Y +
+    tCubed * endY;
+
+  // Calculate tangent for rotation (derivative of Bezier curve)
+  const tangentX =
+    3 * oneMinusTSquared * (cp1X - startX) +
+    6 * oneMinusT * t * (cp2X - cp1X) +
+    3 * tSquared * (endX - cp2X);
+  const tangentY =
+    3 * oneMinusTSquared * (cp1Y - startY) +
+    6 * oneMinusT * t * (cp2Y - cp1Y) +
+    3 * tSquared * (endY - cp2Y);
+  const angle = Math.atan2(tangentY, tangentX) * (180 / Math.PI);
+
+  return (
+    <g>
+      {/* Moving arrow */}
+      <g transform={`translate(${currentX}, ${currentY}) rotate(${angle})`}>
+        <polygon
+          points="-12,-6 12,0 -12,6 -6,0"
+          fill="#10b981"
+          stroke="#059669"
+          strokeWidth="2"
+          style={{
+            filter: "drop-shadow(0 2px 8px rgba(16, 185, 129, 0.8))",
+          }}
+        />
+      </g>
+    </g>
   );
 };
 

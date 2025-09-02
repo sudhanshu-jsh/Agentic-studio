@@ -159,13 +159,6 @@ const AgentTemplates: React.FC<AgentTemplatesProps> = ({
               ))}
             </SelectContent>
           </Select>
-          <Button
-            onClick={onCreateNew}
-            className="bg-blue-600 hover:bg-blue-700"
-          >
-            <Plus className="h-4 w-4 mr-2" />
-            New Agent
-          </Button>
         </div>
       </div>
 
@@ -175,16 +168,25 @@ const AgentTemplates: React.FC<AgentTemplatesProps> = ({
         className="space-y-6"
       >
         <TabsList>
-          <TabsTrigger value="templates">Templates</TabsTrigger>
-          <TabsTrigger value="custom-agents">Custom Agents</TabsTrigger>
+          <TabsTrigger value="templates">Create Agent</TabsTrigger>
+          <TabsTrigger value="custom-agents">My Agents</TabsTrigger>
         </TabsList>
 
         <TabsContent value="templates" className="space-y-4">
           <div className="flex items-center justify-between">
-            <h2 className="text-xl font-semibold">Start from a template</h2>
-            <p className="text-sm text-muted-foreground">
-              Kickstart with best-practice ITSM blueprints
-            </p>
+            <div>
+              <h2 className="text-xl font-semibold">Start from a template</h2>
+              <p className="text-sm text-muted-foreground">
+                Kickstart with best-practice ITSM blueprints
+              </p>
+            </div>
+            <Button
+              onClick={onCreateNew}
+              className="bg-blue-600 hover:bg-blue-700"
+            >
+              <Plus className="h-4 w-4 mr-2" />
+              New Agent
+            </Button>
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
@@ -242,7 +244,7 @@ const AgentTemplates: React.FC<AgentTemplatesProps> = ({
 
         <TabsContent value="custom-agents" className="space-y-4">
           <div className="flex items-center justify-between">
-            <h2 className="text-xl font-semibold">Custom Agents</h2>
+            <h2 className="text-xl font-semibold">My Agents</h2>
             <p className="text-sm text-muted-foreground">Your created agents</p>
           </div>
 
