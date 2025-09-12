@@ -9,17 +9,6 @@ import Observability from "./components/Observability";
 import LeftNavigation from "./components/LeftNavigation";
 import AgentHome from "./components/home";
 
-// Conditional storyboard loading for production compatibility
-const AgentBuilderStoryboard = React.lazy(() => {
-  try {
-    return import("./tempobook/storyboards/cd16afd7-113d-4fbf-87cd-f51ceeaef6c0/index");
-  } catch {
-    return Promise.resolve({
-      default: () => <div className="p-8 text-center">Storyboard not available in production</div>
-    });
-  }
-});
-
 function App() {
   const [activeView, setActiveView] = useState("observability");
   const [navigationCollapsed, setNavigationCollapsed] = useState(false);
@@ -54,14 +43,6 @@ function App() {
       }
     >
       <Routes>
-        {/* Storyboard route - only in development */}
-        {process.env.NODE_ENV === 'development' && (
-          <Route 
-            path="/tempobook/storyboards/cd16afd7-113d-4fbf-87cd-f51ceeaef6c0" 
-            element={<AgentBuilderStoryboard />} 
-          />
-        )}
-        
         {/* Main application route */}
         <Route path="/*" element={
           <div className="flex h-screen bg-background overflow-hidden">
