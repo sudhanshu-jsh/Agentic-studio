@@ -1,4 +1,5 @@
 import React, { Suspense, useState } from "react";
+import { Routes, Route, useRoutes } from "react-router-dom";
 import AgentBuilder from "./components/AgentBuilder";
 import Dashboard from "./components/Dashboard";
 import AgentTools from "./components/AgentTools";
@@ -8,9 +9,15 @@ import Observability from "./components/Observability";
 import LeftNavigation from "./components/LeftNavigation";
 import AgentHome from "./components/home";
 
+// Import tempo routes
+import routes from "tempo-routes";
+
 function App() {
   const [activeView, setActiveView] = useState("observability");
   const [navigationCollapsed, setNavigationCollapsed] = useState(false);
+
+  // Use tempo routes for storyboards
+  const tempoRoutes = useRoutes(routes);
 
   const renderContent = () => {
     switch (activeView) {
@@ -41,14 +48,22 @@ function App() {
         </div>
       }
     >
-      <div className="flex h-screen bg-background overflow-hidden">
-        <LeftNavigation
-          activeView={activeView}
-          onViewChange={setActiveView}
-          forceCollapsed={navigationCollapsed}
-        />
-        <div className="flex-1 overflow-auto">{renderContent()}</div>
-      </div>
+      {/* First try tempo routes for storyboards */}
+      {tempoRoutes || (
+        <Routes>
+          {/* Main application route */}
+          <Route path="/*" element={
+            <div className="flex h-screen bg-background overflow-hidden">
+              <LeftNavigation
+                activeView={activeView}
+                onViewChange={setActiveView}
+                forceCollapsed={navigationCollapsed}
+              />
+              <div className="flex-1 overflow-auto">{renderContent()}</div>
+            </div>
+          } />
+        </Routes>
+      )}
     </Suspense>
   );
 }

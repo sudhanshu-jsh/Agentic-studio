@@ -515,6 +515,33 @@ const FlowCanvas: React.FC<FlowCanvasProps> = ({
     setPan({ x: 0, y: 0 });
   };
 
+  // Handle wheel events for pinch-to-zoom
+  const handleWheel = (e: React.WheelEvent) => {
+    if (e.ctrlKey || e.metaKey) {
+      // Prevent default browser zoom
+      e.preventDefault();
+
+      const rect = canvasRef.current?.getBoundingClientRect();
+      if (!rect) return;
+
+      // Get mouse position relative to canvas
+      const mouseX = e.clientX - rect.left;
+      const mouseY = e.clientY - rect.top;
+
+      // Calculate zoom factor
+      const zoomFactor = e.deltaY > 0 ? 0.9 : 1.1;
+      const newZoom = Math.min(Math.max(zoom * zoomFactor, 0.1), 3);
+
+      // Calculate new pan to zoom towards mouse position
+      const zoomRatio = newZoom / zoom;
+      const newPanX = mouseX - (mouseX - pan.x) * zoomRatio;
+      const newPanY = mouseY - (mouseY - pan.y) * zoomRatio;
+
+      setZoom(newZoom);
+      setPan({ x: newPanX, y: newPanY });
+    }
+  };
+
   // Get node color based on type
   const getNodeColor = (type: string) => {
     switch (type) {
@@ -876,6 +903,7 @@ const FlowCanvas: React.FC<FlowCanvasProps> = ({
         onClick={handleCanvasClick}
         onDrop={handleCanvasDrop}
         onDragOver={handleCanvasDragOver}
+        onWheel={handleWheel}
       >
         <div
           className="absolute w-full h-full"

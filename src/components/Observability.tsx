@@ -11,6 +11,11 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from "@/components/ui/popover";
+import {
   BarChart3,
   Activity,
   AlertTriangle,
@@ -24,6 +29,10 @@ import {
   RefreshCw,
   Filter,
   Eye,
+  Bot,
+  ArrowRight,
+  Minus,
+  Sparkles,
 } from "lucide-react";
 
 const Observability: React.FC = () => {
@@ -40,29 +49,110 @@ const Observability: React.FC = () => {
       color: "text-blue-600",
     },
     {
-      title: "Active Agents",
-      value: "12",
-      change: "+2",
-      trend: "up",
-      icon: Zap,
-      color: "text-purple-600",
-    },
-    {
       title: "Success Rate",
       value: "97.8%",
       change: "+1.2%",
       trend: "up",
       icon: CheckCircle,
       color: "text-green-600",
+      aiRecommendation: {
+        title: "Enable Change Risk Advisor Agent",
+        description:
+          "Enable Change Risk Advisor Agent to analyze blast radius. Could prevent 73% of failed changes based on pattern analysis.",
+        tags: ["Risk-assessment", "Approval"],
+      },
     },
     {
       title: "Error Rate",
-      value: "2.2%",
-      change: "+0.4%",
-      trend: "down",
+      value: "2.3%",
+      change: "+0.5%",
+      trend: "up",
       icon: AlertTriangle,
       color: "text-red-600",
-      showReview: true,
+      subtitle: "needs review",
+      hasReviewButton: true,
+      aiRecommendation: {
+        title: "Error Pattern Analyzer Agent",
+        description:
+          "Error Pattern Analyzer Agent detected recurring authentication failures. Implementing auto-retry logic could reduce error rate by 60%.",
+        tags: ["Error-reduction", "Auto-retry"],
+      },
+    },
+    {
+      title: "MTTR (Mean Time to Resolve)",
+      value: "3.4h",
+      change: "+18%",
+      trend: "up",
+      icon: Clock,
+      color: "text-orange-600",
+      subtitle: "vs last week",
+      aiRecommendation: {
+        title: "Deploy Intelligent Escalation Monitor Agent",
+        description:
+          "Deploy Intelligent Escalation Monitor Agent to predict escalations upto 2 hours earlier, potentially reducing MTTR by 35%.",
+        tags: ["Detection", "Prediction"],
+      },
+    },
+    {
+      title: "Major Incidents (24h)",
+      value: "27.7",
+      change: "+140%",
+      trend: "up",
+      icon: AlertTriangle,
+      color: "text-red-600",
+      subtitle: "spike detected",
+      aiRecommendation: {
+        title: "Activate Major Incident Swarmer Agent",
+        description:
+          "Activate Major Incident Swarmer Agent to auto-coordinate response teams. Past data shows 45% faster resolution with swarming.",
+        tags: ["Swarming", "Timeline"],
+      },
+    },
+
+    {
+      title: "Knowledge Deflection Rate",
+      value: "38%",
+      change: "0%",
+      trend: "neutral",
+      icon: MessageSquare,
+      color: "text-gray-600",
+      subtitle: "No change",
+      aiRecommendation: {
+        title: "Knowledge Articles Writer Agent",
+        description:
+          "Knowledge Articles Writer Agent identified 47 high-volume queries lacking documentation. Auto-drafting could boost deflection to 45%.",
+        tags: ["Low-deflection", "Auto-complete"],
+      },
+    },
+    {
+      title: "Recurring Incidents",
+      value: "274.3",
+      change: "+32%",
+      trend: "up",
+      icon: RefreshCw,
+      color: "text-red-600",
+      subtitle: "increase",
+      aiRecommendation: {
+        title: "Proactive Problem Manager Agent",
+        description:
+          "Proactive Problem Manager Agent detected 6 clusters affecting 180+ incidents. Suggested workarounds ready for deployment.",
+        tags: ["Clustering", "Workarounds"],
+      },
+    },
+    {
+      title: "Manual Approval Backlog",
+      value: "24.3",
+      change: "+",
+      trend: "up",
+      icon: Users,
+      color: "text-yellow-600",
+      subtitle: "Growing queue",
+      aiRecommendation: {
+        title: "Intelligent Change Approver Agent",
+        description:
+          "Intelligent Change Approver Agent can auto-approve 62 low-risk changes immediately, reducing backlog by 74%.",
+        tags: ["Auto-approve", "Risk-assessment"],
+      },
     },
   ];
 
@@ -256,13 +346,26 @@ const Observability: React.FC = () => {
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
         {metrics.map((metric, index) => {
           const Icon = metric.icon;
+          const getBackgroundColor = (color: string) => {
+            const colorMap: { [key: string]: string } = {
+              "text-blue-600": "#dbeafe",
+              "text-green-600": "#dcfce7",
+              "text-purple-600": "#f3e8ff",
+              "text-red-600": "#fef2f2",
+              "text-orange-600": "#fed7aa",
+              "text-yellow-600": "#fef3c7",
+              "text-gray-600": "#f3f4f6",
+            };
+            return colorMap[color] || "#f3f4f6";
+          };
+
           return (
             <Card key={index} className="relative">
               <CardHeader className="flex flex-row items-center space-y-0 pb-2">
                 <div
                   className={`w-8 h-8 rounded flex items-center justify-center mr-3`}
                   style={{
-                    backgroundColor: `${metric.color.replace("text-", "").replace("-600", "") === "blue" ? "#dbeafe" : metric.color.replace("text-", "").replace("-600", "") === "green" ? "#dcfce7" : metric.color.replace("text-", "").replace("-600", "") === "purple" ? "#f3e8ff" : "#fef2f2"}`,
+                    backgroundColor: getBackgroundColor(metric.color),
                   }}
                 >
                   <Icon className={`h-4 w-4 ${metric.color}`} />
@@ -271,43 +374,122 @@ const Observability: React.FC = () => {
                   {metric.title}
                 </CardTitle>
               </CardHeader>
-              <CardContent>
+              <CardContent
+                className={
+                  metric.title !== "Total Requests" &&
+                  metric.title !== "Active Agents"
+                    ? "pb-12"
+                    : ""
+                }
+              >
                 <div className="flex items-center justify-between">
                   <div className="flex items-center gap-2">
                     <div className="text-2xl font-bold">{metric.value}</div>
                     <div className="flex items-center text-xs">
                       {metric.trend === "up" ? (
-                        <TrendingUp className="h-3 w-3 text-green-600 mr-1" />
-                      ) : (
+                        <TrendingUp
+                          className={`h-3 w-3 mr-1 ${
+                            metric.title.includes("Success")
+                              ? "text-green-600"
+                              : "text-red-600"
+                          }`}
+                        />
+                      ) : metric.trend === "down" ? (
                         <TrendingDown className="h-3 w-3 text-red-600 mr-1" />
+                      ) : (
+                        <Minus className="h-3 w-3 text-gray-600 mr-1" />
                       )}
                       <span
                         className={
                           metric.trend === "up"
-                            ? "text-green-600"
-                            : "text-red-600"
+                            ? metric.title.includes("Success")
+                              ? "text-green-600"
+                              : "text-red-600"
+                            : metric.trend === "down"
+                              ? "text-red-600"
+                              : "text-gray-600"
                         }
                       >
                         {metric.change}
                       </span>
                       <span className="text-muted-foreground ml-1">
-                        from last period
+                        {metric.subtitle || "from last period"}
                       </span>
                     </div>
                   </div>
                 </div>
-                {metric.showReview && (
-                  <div className="absolute top-2 right-2">
+
+                {/* Review Button for Error Rate */}
+                {metric.hasReviewButton && (
+                  <div className="absolute top-3 right-2">
                     <Button
                       variant="outline"
                       size="sm"
-                      className="h-6 px-2 text-xs"
+                      className="h-7 px-3 text-xs bg-white border-red-200 text-red-600 hover:bg-red-50 hover:border-red-300"
                     >
                       <Eye className="h-3 w-3 mr-1" />
                       Review
                     </Button>
                   </div>
                 )}
+
+                {/* AI Agent Recommendation Badge - Only show for specific metrics */}
+                {metric.title !== "Total Requests" &&
+                  metric.title !== "Active Agents" && (
+                    <div className="absolute bottom-2 left-2">
+                      <Popover>
+                        <PopoverTrigger asChild>
+                          <Button
+                            variant="ghost"
+                            size="sm"
+                            className="h-7 px-2 text-xs bg-gradient-to-r from-blue-500/10 to-purple-500/10 border border-blue-300/50 text-blue-700 hover:from-blue-500/20 hover:to-purple-500/20 hover:border-blue-400/70 shadow-sm transition-all duration-300 rounded-lg backdrop-blur-sm"
+                          >
+                            <Sparkles className="h-3 w-3 mr-1.5 text-blue-600" />
+                            <span className="font-medium">
+                              AI Agent Recommendation
+                            </span>
+                          </Button>
+                        </PopoverTrigger>
+                        <PopoverContent
+                          className="w-80 p-0 bg-white border border-gray-200 shadow-xl"
+                          side="bottom"
+                          align="start"
+                        >
+                          <div className="bg-gradient-to-br from-blue-50 to-purple-50 p-4 rounded-lg border border-blue-100">
+                            <div className="flex items-center gap-2 mb-3">
+                              <div className="w-8 h-8 bg-gradient-to-r from-blue-500 to-purple-600 rounded-full flex items-center justify-center">
+                                <Sparkles className="h-4 w-4 text-white" />
+                              </div>
+                              <span className="text-sm font-semibold text-blue-700 uppercase tracking-wide">
+                                AI AGENT RECOMMENDATION
+                              </span>
+                            </div>
+
+                            <h4 className="font-semibold text-gray-900 mb-2">
+                              {metric.aiRecommendation.title}
+                            </h4>
+
+                            <p className="text-sm text-gray-700 mb-3 leading-relaxed">
+                              {metric.aiRecommendation.description}
+                            </p>
+
+                            <div className="flex gap-2">
+                              {metric.aiRecommendation.tags.map(
+                                (tag, tagIndex) => (
+                                  <Badge
+                                    key={tagIndex}
+                                    className="bg-purple-100 text-purple-700 hover:bg-purple-200 text-xs px-2 py-1"
+                                  >
+                                    {tag}
+                                  </Badge>
+                                ),
+                              )}
+                            </div>
+                          </div>
+                        </PopoverContent>
+                      </Popover>
+                    </div>
+                  )}
               </CardContent>
             </Card>
           );

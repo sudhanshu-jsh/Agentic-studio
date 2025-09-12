@@ -44,29 +44,29 @@ const Collaboration: React.FC = () => {
     "ai-executed": [
       {
         id: 1,
-        title: "Customer inquiry auto-response",
-        agent: "Support Agent",
+        title: "Incident auto-classification P2",
+        agent: "ITSM Incident Agent",
         time: "2min ago",
         priority: "High",
       },
       {
         id: 2,
-        title: "Lead qualification completed",
-        agent: "Sales Agent",
+        title: "Service request auto-approval",
+        agent: "Service Request Agent",
         time: "5min ago",
         priority: "Medium",
       },
       {
         id: 3,
-        title: "Invoice processing automated",
-        agent: "Finance Agent",
+        title: "Knowledge article auto-creation",
+        agent: "Knowledge Management Agent",
         time: "8min ago",
         priority: "Low",
       },
       {
         id: 4,
-        title: "Email campaign sent",
-        agent: "Marketing Agent",
+        title: "Change risk assessment completed",
+        agent: "Change Management Agent",
         time: "12min ago",
         priority: "Medium",
       },
@@ -74,117 +74,117 @@ const Collaboration: React.FC = () => {
     "ai-failed": [
       {
         id: 5,
-        title: "API rate limit exceeded",
-        agent: "Data Agent",
+        title: "CMDB CI update failed",
+        agent: "CMDB Agent",
         time: "15 min ago",
-        error: "Rate limit",
+        error: "API timeout",
       },
       {
         id: 6,
-        title: "Payment processing failed",
-        agent: "Payment Agent",
+        title: "Incident escalation blocked",
+        agent: "Incident Management Agent",
         time: "25 min ago",
-        error: "Auth failed",
+        error: "SLA missing",
       },
       {
         id: 7,
-        title: "Email delivery bounced",
-        agent: "Email Agent",
+        title: "Asset discovery scan failed",
+        agent: "Asset Management Agent",
         time: "1 hour ago",
-        error: "Invalid email",
+        error: "Network Error",
       },
     ],
     "awaiting-approval": [
       {
         id: 8,
-        title: "High-value contract negotiation",
-        agent: "Sales Agent",
+        title: "Emergency change deployment",
+        agent: "Change Management Agent",
         time: "5 min ago",
-        priority: "High",
-        value: "$50,000",
+        priority: "Critical",
+        value: "Production Impact",
       },
       {
         id: 9,
-        title: "Employee termination process",
-        agent: "HR Agent",
+        title: "Major incident declaration",
+        agent: "Incident Management Agent",
         time: "15 min ago",
         priority: "Critical",
-        value: "Sensitive",
+        value: "P1 Incident",
       },
       {
         id: 10,
-        title: "Large expense approval",
-        agent: "Finance Agent",
+        title: "Service catalog item approval",
+        agent: "Service Catalog Agent",
         time: "30 min ago",
         priority: "High",
-        value: "$25,000",
+        value: "$15,000",
       },
       {
         id: 11,
-        title: "Legal document review",
-        agent: "Legal Agent",
+        title: "SLA breach notification",
+        agent: "SLA Management Agent",
         time: "45 min ago",
-        priority: "Medium",
-        value: "Contract",
+        priority: "High",
+        value: "Customer Impact",
       },
     ],
     "human-approved": [
       {
         id: 12,
-        title: "Enterprise software purchase",
-        approver: "John Doe",
+        title: "Infrastructure change executed",
+        approver: "IT Manager",
         time: "1 hour ago",
-        value: "$75,000",
+        value: "Server Upgrade",
         status: "Executed",
       },
       {
         id: 13,
-        title: "Marketing campaign launch",
-        approver: "Sarah Wilson",
+        title: "Service restoration completed",
+        approver: "Service Owner",
         time: "2 hours ago",
-        value: "$15,000",
-        status: "In Progress",
+        value: "P2 Incident",
+        status: "Completed",
       },
       {
         id: 14,
-        title: "New hire onboarding",
-        approver: "Emily Chen",
+        title: "New service deployment",
+        approver: "Change Advisory Board",
         time: "3 hours ago",
-        value: "HR Process",
-        status: "Completed",
+        value: "Production Release",
+        status: "In Progress",
       },
       {
         id: 15,
         title: "Vendor contract renewal",
-        approver: "Mike Johnson",
+        approver: "Procurement Manager",
         time: "4 hours ago",
-        value: "$30,000",
+        value: "$50,000",
         status: "Pending",
       },
     ],
     "human-rejected": [
       {
         id: 16,
-        title: "Social media post content",
-        rejector: "Mike Johnson",
+        title: "Unauthorized software installation",
+        rejector: "Security Team",
         time: "1 hour ago",
-        reason: "Policy violation",
+        reason: "Security violation",
       },
       {
         id: 17,
-        title: "Aggressive pricing strategy",
-        rejector: "Sarah Wilson",
+        title: "High-risk change request",
+        rejector: "Change Manager",
         time: "3 hours ago",
-        reason: "Risk too high",
+        reason: "Testing incomplete",
       },
     ],
     "timeout-expired": [
       {
         id: 18,
-        title: "Document review request",
+        title: "Change approval timeout",
         time: "3 hours ago",
-        timeout: "2 hour timeout",
-        originalValue: "$12,000",
+        timeout: "4 hour SLA expired",
+        originalValue: "Standard Change",
       },
     ],
   });
@@ -440,7 +440,7 @@ const Collaboration: React.FC = () => {
         <div className="overflow-x-auto">
           <div className="flex gap-6 min-w-max pb-4">
             {/* Decision taken by AI */}
-            <div className="w-[700px] flex-shrink-0">
+            <div className="w-[800px] flex-shrink-0">
               {/* Main Header */}
               <div className="bg-blue-100 text-blue-900 px-4 py-3 rounded-t-lg font-medium text-sm">
                 Decision taken by AI
@@ -493,7 +493,7 @@ const Collaboration: React.FC = () => {
                               </h4>
                             </div>
                             <Badge
-                              className={`text-xs px-2 py-0.5 ${
+                              className={`text-xs px-2 py-0.5 whitespace-nowrap ${
                                 item.priority === "Critical"
                                   ? "bg-red-200 text-red-900"
                                   : item.priority === "High"
@@ -560,7 +560,7 @@ const Collaboration: React.FC = () => {
                                 {item.title}
                               </h4>
                             </div>
-                            <Badge className="bg-red-100 text-red-700 text-xs px-2 py-0.5">
+                            <Badge className="bg-red-100 text-red-700 text-xs px-2 py-0.5 whitespace-nowrap">
                               {(item as any).error}
                             </Badge>
                           </div>
@@ -577,7 +577,7 @@ const Collaboration: React.FC = () => {
             </div>
 
             {/* Decisions pending on Humans */}
-            <div className="w-[450px] flex-shrink-0">
+            <div className="w-[500px] flex-shrink-0">
               {/* Main Header */}
               <div className="bg-orange-100 text-orange-900 px-4 py-3 rounded-t-lg font-medium text-sm">
                 Decisions pending on Humans
@@ -628,7 +628,7 @@ const Collaboration: React.FC = () => {
                                 {item.title}
                               </h4>
                             </div>
-                            <Badge className="bg-red-100 text-red-700 text-xs px-2 py-0.5">
+                            <Badge className="bg-red-100 text-red-700 text-xs px-2 py-0.5 whitespace-nowrap">
                               {item.priority}
                             </Badge>
                           </div>
@@ -659,7 +659,7 @@ const Collaboration: React.FC = () => {
             </div>
 
             {/* Decision taken by Humans */}
-            <div className="w-[1050px] flex-shrink-0">
+            <div className="w-[1200px] flex-shrink-0">
               {/* Main Header */}
               <div className="bg-green-100 text-green-900 px-4 py-3 rounded-t-lg font-medium text-sm">
                 Decision taken by Humans
@@ -712,7 +712,7 @@ const Collaboration: React.FC = () => {
                               </h4>
                             </div>
                             <Badge
-                              className={`text-xs px-2 py-0.5 ${
+                              className={`text-xs px-2 py-0.5 whitespace-nowrap ${
                                 (item as any).status === "Executed"
                                   ? "bg-green-100 text-green-700"
                                   : (item as any).status === "Completed"
@@ -802,7 +802,7 @@ const Collaboration: React.FC = () => {
                                 {item.title}
                               </h4>
                             </div>
-                            <Badge className="bg-red-100 text-red-700 text-xs px-2 py-0.5">
+                            <Badge className="bg-red-100 text-red-700 text-xs px-2 py-0.5 whitespace-nowrap">
                               {(item as any).reason}
                             </Badge>
                           </div>
@@ -860,7 +860,7 @@ const Collaboration: React.FC = () => {
                                 {item.title}
                               </h4>
                             </div>
-                            <Badge className="bg-orange-100 text-orange-700 text-xs px-2 py-0.5">
+                            <Badge className="bg-orange-100 text-orange-700 text-xs px-2 py-0.5 whitespace-nowrap">
                               Expired
                             </Badge>
                           </div>
