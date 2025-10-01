@@ -728,7 +728,7 @@ export default function Collaboration() {
                             : ""
                         }`}
                         draggable
-                        onDragStart={(e) => handleDragStart(e, item)}
+                        onDragStart={(e) => handleDragStart(e, item, "ai-pipeline")}
                       >
                         <div className="space-y-2">
                           <div className="flex items-start justify-between">
