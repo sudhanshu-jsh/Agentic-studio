@@ -1,9 +1,9 @@
 import React, { useState } from "react";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Card } from "@/components/ui/card";
+import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Badge } from "@/components/ui/badge";
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { Textarea } from "@/components/ui/textarea";
 import {
   Select,
   SelectContent,
@@ -12,26 +12,23 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import {
-  Users,
-  Plus,
-  MessageSquare,
-  Share2,
-  Clock,
-  CheckCircle,
-  AlertCircle,
-  Settings,
-  Mail,
-  Search,
-  Filter,
   Bot,
   User,
-  Timer,
-  X,
-  AlertTriangle,
+  CheckCircle,
   GripVertical,
+  Timer,
+  Send,
+  MessageCircle,
+  ChevronDown,
+  ChevronUp,
+  Search,
+  Filter,
+  Plus,
+  Check,
+  Loader2,
 } from "lucide-react";
 
-const Collaboration: React.FC = () => {
+export default function Collaboration() {
   const [searchQuery, setSearchQuery] = useState("");
   const [statusFilter, setStatusFilter] = useState("all");
   const [draggedItem, setDraggedItem] = useState<any>(null);
@@ -94,7 +91,72 @@ const Collaboration: React.FC = () => {
         error: "Network Error",
       },
     ],
+    "ai-pipeline": [
+      {
+        id: 19,
+        title: "Auto-categorize incoming incidents",
+        agent: "Incident Management Agent",
+        taskType: "Classification",
+        description:
+          "Analyze new incident reports and automatically categorize by severity and type",
+        status: "Queued",
+        estimatedTime: "2min",
+        priority: "High",
+      },
+      {
+        id: 20,
+        title: "Generate SLA breach alerts",
+        agent: "SLA Management Agent",
+        taskType: "Monitoring",
+        description:
+          "Monitor all active tickets and generate alerts for potential SLA breaches",
+        status: "Scheduled",
+        estimatedTime: "5min",
+        priority: "Medium",
+      },
+      {
+        id: 21,
+        title: "Update CMDB from asset discovery",
+        agent: "Asset Management Agent",
+        taskType: "Data Sync",
+        description:
+          "Process network discovery results and update configuration management database",
+        status: "Queued",
+        estimatedTime: "10min",
+        priority: "Low",
+      },
+      {
+        id: 22,
+        title: "Create knowledge articles from resolved incidents",
+        agent: "Knowledge Management Agent",
+        taskType: "Documentation",
+        description:
+          "Analyze recently resolved P2 incidents and generate knowledge base articles",
+        status: "Queued",
+        estimatedTime: "15min",
+        priority: "Medium",
+      },
+      {
+        id: 23,
+        title: "Validate change request dependencies",
+        agent: "Change Management Agent",
+        taskType: "Validation",
+        description:
+          "Check all pending change requests for conflicts and dependency issues",
+        status: "Processing",
+        estimatedTime: "8min",
+        priority: "High",
+      },
+    ],
     "awaiting-approval": [
+      {
+        id: 11,
+        title: "SLA breach notification",
+        agent: "SLA Management Agent",
+        time: "45 min ago",
+        priority: "High",
+        value: "Customer Impact",
+      },
       {
         id: 8,
         title: "Emergency change deployment",
@@ -118,14 +180,6 @@ const Collaboration: React.FC = () => {
         time: "30 min ago",
         priority: "High",
         value: "$15,000",
-      },
-      {
-        id: 11,
-        title: "SLA breach notification",
-        agent: "SLA Management Agent",
-        time: "45 min ago",
-        priority: "High",
-        value: "Customer Impact",
       },
     ],
     "human-approved": [
@@ -323,6 +377,201 @@ const Collaboration: React.FC = () => {
     }
   };
 
+  // New state for chat functionality
+  const [selectedTaskForChat, setSelectedTaskForChat] = useState(null);
+  const [taskDescription, setTaskDescription] = useState("");
+  const [conversations, setConversations] = useState({});
+  const [expandedConversations, setExpandedConversations] = useState({});
+  const [actionSteps, setActionSteps] = useState({});
+  const [currentActionStep, setCurrentActionStep] = useState({});
+  const [showAIPipelineConversation, setShowAIPipelineConversation] = useState(
+    {},
+  );
+
+  // Handle bot icon click for AI Pipeline
+  const handleAIPipelineBotClick = (taskId) => {
+    setShowAIPipelineConversation((prev) => ({
+      ...prev,
+      [taskId]: !prev[taskId],
+    }));
+    if (!showAIPipelineConversation[taskId]) {
+      setSelectedTaskForChat(taskId);
+    } else {
+      setSelectedTaskForChat(null);
+    }
+  };
+
+  // Handle bot icon click for human approval
+  const handleBotIconClick = (taskId) => {
+    setSelectedTaskForChat(taskId);
+  };
+
+  // Handle task description send for AI Pipeline
+  const handleDescriptionSend = () => {
+    if (!taskDescription.trim()) return;
+
+    const taskId = selectedTaskForChat;
+    const newConversation = {
+      id: Date.now(),
+      messages: [
+        {
+          type: "user",
+          text: taskDescription,
+          timestamp: new Date().toLocaleTimeString(),
+        },
+        {
+          type: "bot",
+          text: "on it",
+          timestamp: new Date().toLocaleTimeString(),
+        },
+      ],
+    };
+
+    setConversations((prev) => ({
+      ...prev,
+      [taskId]: newConversation,
+    }));
+
+    setTaskDescription("");
+    setSelectedTaskForChat(null);
+  };
+
+  // Handle human approval task message send
+  const handleHumanApprovalMessageSend = () => {
+    if (!taskDescription.trim()) return;
+
+    const taskId = selectedTaskForChat;
+    const newConversation = {
+      id: Date.now(),
+      messages: [
+        {
+          type: "user",
+          text: taskDescription,
+          timestamp: new Date().toLocaleTimeString(),
+        },
+        {
+          type: "bot",
+          text: "On it!",
+          timestamp: new Date().toLocaleTimeString(),
+        },
+      ],
+    };
+
+    setConversations((prev) => ({
+      ...prev,
+      [taskId]: newConversation,
+    }));
+
+    setTaskDescription("");
+    setSelectedTaskForChat(null);
+
+    // Start action sequence
+    startActionSequence(taskId.toString());
+  };
+
+  // Start action sequence for human approval tasks
+  const startActionSequence = (taskId) => {
+    const actions = [
+      {
+        text: "Invoked Teams MCP to send message to @manish.sharma",
+        duration: 3000,
+        icon: "loading",
+      },
+      { text: "Message sent", duration: 3000, icon: "check" },
+      {
+        text: "Waiting for @manish.sharma's reply",
+        duration: 3000,
+        icon: "loading",
+      },
+      { text: "Moving to AI pipeline", duration: 2000, icon: "loading" },
+    ];
+
+    let currentIndex = 0;
+
+    const executeAction = () => {
+      if (currentIndex < actions.length) {
+        const action = actions[currentIndex];
+        setCurrentActionStep((prev) => ({
+          ...prev,
+          [taskId]: action,
+        }));
+
+        setTimeout(() => {
+          currentIndex++;
+          if (currentIndex < actions.length) {
+            executeAction();
+          } else {
+            // Show waiting status bubble
+            setConversations((prev) => ({
+              ...prev,
+              [taskId]: {
+                ...prev[taskId],
+                messages: [
+                  ...prev[taskId].messages,
+                  {
+                    type: "bot",
+                    text: "Status: waiting",
+                    timestamp: new Date().toLocaleTimeString(),
+                  },
+                ],
+              },
+            }));
+
+            // Clear action steps
+            setCurrentActionStep((prev) => ({
+              ...prev,
+              [taskId]: null,
+            }));
+
+            // Move task to AI pipeline after 2 seconds
+            setTimeout(() => {
+              moveTaskToAIPipeline(taskId.toString());
+            }, 2000);
+          }
+        }, action.duration);
+      }
+    };
+
+    executeAction();
+  };
+
+  // Move task from human approval to AI pipeline
+  const moveTaskToAIPipeline = (taskId) => {
+    const task = columnData["awaiting-approval"].find(
+      (t) => t.id.toString() === taskId,
+    );
+    if (task) {
+      const updatedTask = {
+        ...task,
+        hasConversation: true,
+        conversationId: taskId,
+        taskType: "Human Escalation",
+        description:
+          "Task escalated from human approval with conversation history",
+        status: "Waiting",
+        estimatedTime: "5min",
+        showWaitingStatus: true,
+        statusText: "Status: waiting for @manish.sharma's reply",
+      };
+
+      setColumnData((prev) => ({
+        ...prev,
+        "awaiting-approval": prev["awaiting-approval"].filter(
+          (t) => t.id.toString() !== taskId,
+        ),
+        "ai-pipeline": [updatedTask, ...prev["ai-pipeline"]],
+      }));
+    }
+  };
+
+  // Toggle conversation expansion
+  const toggleConversation = (taskId) => {
+    setExpandedConversations((prev) => ({
+      ...prev,
+      [taskId]: !prev[taskId],
+    }));
+  };
+
   const handleDragStart = (
     e: React.DragEvent,
     item: any,
@@ -439,7 +688,420 @@ const Collaboration: React.FC = () => {
       <div className="space-y-6">
         <div className="overflow-x-auto">
           <div className="flex gap-6 min-w-max pb-4">
-            {/* Decision taken by AI */}
+            {/* AI Pipeline - Updated to show conversation history */}
+            <div className="w-[400px] flex-shrink-0">
+              {/* Main Header */}
+              <div className="bg-indigo-100 text-indigo-900 px-4 py-3 rounded-t-lg font-medium text-sm flex items-center gap-2">
+                <Bot className="h-4 w-4" />
+                AI Pipeline
+              </div>
+
+              {/* Sub-column */}
+              <div className="bg-gray-100 p-2">
+                <div className="bg-white rounded-lg border border-gray-200">
+                  <div className="flex items-center gap-2 px-3 py-2 border-b border-gray-200">
+                    <div className="w-1 h-4 bg-indigo-500 rounded-full"></div>
+                    <span className="text-sm font-medium text-gray-900">
+                      Tasks to Perform
+                    </span>
+                    <Badge className="ml-auto bg-gray-300 text-gray-700 text-xs px-2 py-0.5">
+                      {columnData["ai-pipeline"].length}
+                    </Badge>
+                  </div>
+                  <div
+                    className={`p-3 space-y-3 min-h-[500px] transition-colors ${
+                      dragOverColumn === "ai-pipeline"
+                        ? "bg-indigo-50 border-2 border-indigo-300 border-dashed"
+                        : ""
+                    }`}
+                    onDragOver={handleDragOver}
+                    onDragEnter={(e) => handleDragEnter(e, "ai-pipeline")}
+                    onDragLeave={handleDragLeave}
+                    onDrop={(e) => handleDrop(e, "ai-pipeline")}
+                  >
+                    {columnData["ai-pipeline"].map((item) => (
+                      <Card
+                        key={item.id}
+                        className={`p-3 space-y-2 cursor-grab hover:shadow-md transition-shadow ${
+                          (item as any).showWaitingStatus
+                            ? "bg-blue-50 border-blue-200"
+                            : ""
+                        }`}
+                        draggable
+                        onDragStart={(e) => handleDragStart(e, item)}
+                      >
+                        <div className="space-y-2">
+                          <div className="flex items-start justify-between">
+                            <div className="flex items-center gap-2">
+                              <GripVertical className="h-4 w-4 text-gray-400 cursor-grab" />
+                              <h4 className="text-sm font-medium text-gray-900">
+                                {item.title}
+                              </h4>
+                            </div>
+                            <div className="flex items-center gap-2">
+                              <Badge
+                                className={`text-xs px-2 py-0.5 whitespace-nowrap ${
+                                  item.priority === "Critical"
+                                    ? "bg-red-200 text-red-900"
+                                    : item.priority === "High"
+                                      ? "bg-red-100 text-red-700"
+                                      : item.priority === "Medium"
+                                        ? "bg-yellow-100 text-yellow-700"
+                                        : "bg-gray-100 text-gray-700"
+                                }`}
+                              >
+                                {item.priority}
+                              </Badge>
+                            </div>
+                          </div>
+
+                          <div className="text-xs text-gray-600">
+                            {(item as any).description}
+                          </div>
+
+                          {/* Show conversation if exists and is expanded */}
+                          {conversations[item.id] &&
+                            showAIPipelineConversation[item.id] && (
+                              <div className="space-y-2">
+                                <div className="text-xs font-medium text-gray-700">
+                                  Previous Conversation:
+                                </div>
+                                {conversations[item.id].messages.map(
+                                  (msg, idx) => (
+                                    <div
+                                      key={idx}
+                                      className={`flex ${msg.type === "user" ? "justify-end" : "justify-start"}`}
+                                    >
+                                      <div
+                                        className={`max-w-[80%] p-2 rounded-lg text-xs ${
+                                          msg.type === "user"
+                                            ? "bg-blue-100 text-blue-900"
+                                            : "bg-gray-100 text-gray-900"
+                                        }`}
+                                      >
+                                        <p>{msg.text}</p>
+                                        <span className="text-xs opacity-70">
+                                          {msg.timestamp}
+                                        </span>
+                                      </div>
+                                    </div>
+                                  ),
+                                )}
+                              </div>
+                            )}
+
+                          {/* Task description input */}
+                          {selectedTaskForChat === item.id &&
+                            showAIPipelineConversation[item.id] && (
+                              <div className="space-y-2">
+                                <Textarea
+                                  placeholder="Describe the task details..."
+                                  value={taskDescription}
+                                  onChange={(e) =>
+                                    setTaskDescription(e.target.value)
+                                  }
+                                  className="text-xs"
+                                  rows={3}
+                                />
+                                <div className="flex justify-end gap-2">
+                                  <Button
+                                    size="sm"
+                                    variant="outline"
+                                    onClick={() => {
+                                      setSelectedTaskForChat(null);
+                                      setShowAIPipelineConversation((prev) => ({
+                                        ...prev,
+                                        [item.id]: false,
+                                      }));
+                                    }}
+                                    className="h-6 px-2 text-xs"
+                                  >
+                                    Cancel
+                                  </Button>
+                                  <Button
+                                    size="sm"
+                                    onClick={handleDescriptionSend}
+                                    className="h-6 px-2 text-xs"
+                                  >
+                                    <Send className="h-3 w-3 mr-1" />
+                                    Send
+                                  </Button>
+                                </div>
+                              </div>
+                            )}
+
+                          <div className="flex items-center justify-between">
+                            {/* Status waiting tag for moved tasks */}
+                            {(item as any).showWaitingStatus && (
+                              <Badge className="bg-blue-100 text-blue-700 text-xs px-2 py-0.5">
+                                {(item as any).statusText || "Status: Waiting"}
+                              </Badge>
+                            )}
+                            {!(item as any).showWaitingStatus && <div></div>}
+
+                            <div
+                              className="w-6 h-6 bg-indigo-100 rounded-full flex items-center justify-center cursor-pointer hover:bg-indigo-200"
+                              onClick={() => handleAIPipelineBotClick(item.id)}
+                            >
+                              <Bot className="h-3 w-3 text-indigo-600" />
+                            </div>
+                          </div>
+                        </div>
+                      </Card>
+                    ))}
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            {/* Decisions pending on Humans - Updated with bot functionality */}
+            <div className="w-[500px] flex-shrink-0">
+              {/* Main Header */}
+              <div className="bg-orange-100 text-orange-900 px-4 py-3 rounded-t-lg font-medium text-sm">
+                Decisions pending on Humans
+              </div>
+
+              {/* Sub-column */}
+              <div className="bg-gray-100 p-2">
+                <div className="bg-white rounded-lg border border-gray-200">
+                  <div className="flex items-center gap-2 px-3 py-2 border-b border-gray-200">
+                    <div className="w-1 h-4 bg-orange-500 rounded-full"></div>
+                    <span className="text-sm font-medium text-gray-900">
+                      Awaiting Human Approval
+                    </span>
+                    <Badge className="ml-auto bg-gray-300 text-gray-700 text-xs px-2 py-0.5">
+                      {columnData["awaiting-approval"].length}
+                    </Badge>
+                  </div>
+                  <div
+                    className={`p-3 space-y-3 min-h-[500px] transition-colors ${
+                      dragOverColumn === "awaiting-approval"
+                        ? "bg-orange-50 border-2 border-orange-300 border-dashed"
+                        : ""
+                    }`}
+                    onDragOver={handleDragOver}
+                    onDragEnter={(e) => handleDragEnter(e, "awaiting-approval")}
+                    onDragLeave={handleDragLeave}
+                    onDrop={(e) => handleDrop(e, "awaiting-approval")}
+                  >
+                    {columnData["awaiting-approval"].map((item) => (
+                      <Card
+                        key={item.id}
+                        className={`p-3 bg-white transition-all rounded-md cursor-move hover:shadow-md ${
+                          draggedItem?.id === item.id
+                            ? "opacity-50 scale-95"
+                            : ""
+                        } ${
+                          (item as any).hasConversation
+                            ? "border-2 border-indigo-300 shadow-md"
+                            : "border border-gray-200"
+                        }`}
+                        draggable
+                        onDragStart={(e) =>
+                          handleDragStart(e, item, "awaiting-approval")
+                        }
+                        onDragEnd={handleDragEnd}
+                      >
+                        <div className="space-y-2">
+                          <div className="flex items-start justify-between">
+                            <div className="flex items-center gap-2">
+                              <GripVertical className="h-4 w-4 text-gray-400 cursor-grab" />
+                              <h4 className="text-sm font-medium text-gray-900">
+                                {item.title}
+                              </h4>
+                            </div>
+                            <div className="flex items-center gap-2">
+                              <Badge
+                                className={`text-xs px-2 py-0.5 whitespace-nowrap ${
+                                  item.priority === "Critical"
+                                    ? "bg-red-200 text-red-900"
+                                    : item.priority === "High"
+                                      ? "bg-red-100 text-red-700"
+                                      : item.priority === "Medium"
+                                        ? "bg-yellow-100 text-yellow-700"
+                                        : "bg-gray-100 text-gray-700"
+                                }`}
+                              >
+                                {item.priority}
+                              </Badge>
+                            </div>
+                          </div>
+
+                          {/* Show conversation updated tag if task has conversation */}
+                          {(item as any).hasConversation && (
+                            <div
+                              className="flex items-center gap-1 text-blue-600 cursor-pointer hover:text-blue-800"
+                              onClick={() =>
+                                toggleConversation((item as any).conversationId)
+                              }
+                            >
+                              <Bot className="h-3 w-3" />
+                              <span className="text-xs font-medium">
+                                Conversation updated
+                              </span>
+                              {expandedConversations[
+                                (item as any).conversationId
+                              ] ? (
+                                <ChevronUp className="h-3 w-3" />
+                              ) : (
+                                <ChevronDown className="h-3 w-3" />
+                              )}
+                            </div>
+                          )}
+
+                          {/* Show expanded conversation */}
+                          {(item as any).hasConversation &&
+                            expandedConversations[
+                              (item as any).conversationId
+                            ] &&
+                            conversations[(item as any).conversationId] && (
+                              <div className="bg-gray-50 p-2 rounded space-y-2">
+                                <div className="text-xs font-medium text-gray-700 mb-2">
+                                  Conversation History:
+                                </div>
+                                {conversations[
+                                  (item as any).conversationId
+                                ].messages.map((msg, idx) => (
+                                  <div
+                                    key={idx}
+                                    className={`flex ${msg.type === "user" ? "justify-end" : "justify-start"}`}
+                                  >
+                                    <div
+                                      className={`max-w-[80%] p-2 rounded-lg text-xs ${
+                                        msg.type === "user"
+                                          ? "bg-blue-100 text-blue-900"
+                                          : "bg-white text-gray-900 border"
+                                      }`}
+                                    >
+                                      <div className="flex items-center gap-1 mb-1">
+                                        {msg.type === "user" ? (
+                                          <User className="h-3 w-3" />
+                                        ) : (
+                                          <Bot className="h-3 w-3" />
+                                        )}
+                                        <span className="font-medium">
+                                          {msg.type === "user"
+                                            ? "You"
+                                            : "AI Agent"}
+                                        </span>
+                                      </div>
+                                      <p>{msg.text}</p>
+                                      <span className="text-xs opacity-70">
+                                        {msg.timestamp}
+                                      </span>
+                                    </div>
+                                  </div>
+                                ))}
+                              </div>
+                            )}
+
+                          {/* Show conversation if exists */}
+                          {conversations[item.id] && (
+                            <div className="space-y-2">
+                              {conversations[item.id].messages.map(
+                                (msg, idx) => (
+                                  <div
+                                    key={idx}
+                                    className={`flex ${msg.type === "user" ? "justify-end" : "justify-start"}`}
+                                  >
+                                    <div
+                                      className={`max-w-[80%] p-2 rounded-lg text-xs ${
+                                        msg.type === "user"
+                                          ? "bg-blue-100 text-blue-900"
+                                          : "bg-gray-100 text-gray-900"
+                                      }`}
+                                    >
+                                      <p>{msg.text}</p>
+                                      <span className="text-xs opacity-70">
+                                        {msg.timestamp}
+                                      </span>
+                                    </div>
+                                  </div>
+                                ),
+                              )}
+                            </div>
+                          )}
+
+                          {/* Show current action step */}
+                          {currentActionStep[item.id] && (
+                            <div className="flex items-center gap-2 text-xs text-gray-700 bg-blue-50 p-2 rounded">
+                              {currentActionStep[item.id].icon === "loading" ? (
+                                <div className="w-3 h-3 bg-green-500 rounded-full animate-pulse"></div>
+                              ) : (
+                                <Check className="h-3 w-3 text-green-600" />
+                              )}
+                              <span>{currentActionStep[item.id].text}</span>
+                            </div>
+                          )}
+
+                          {/* Task description input */}
+                          {selectedTaskForChat === item.id && (
+                            <div className="space-y-2">
+                              <Textarea
+                                placeholder="How can I help you with this ticket?"
+                                value={taskDescription}
+                                onChange={(e) =>
+                                  setTaskDescription(e.target.value)
+                                }
+                                className="text-xs"
+                                rows={3}
+                              />
+                              <div className="flex justify-end gap-2">
+                                <Button
+                                  size="sm"
+                                  variant="outline"
+                                  onClick={() => setSelectedTaskForChat(null)}
+                                  className="h-6 px-2 text-xs"
+                                >
+                                  Cancel
+                                </Button>
+                                <Button
+                                  size="sm"
+                                  onClick={handleHumanApprovalMessageSend}
+                                  className="h-6 px-2 text-xs"
+                                >
+                                  <Send className="h-3 w-3 mr-1" />
+                                  Send
+                                </Button>
+                              </div>
+                            </div>
+                          )}
+
+                          <div className="flex items-center justify-between text-xs text-gray-600">
+                            <span>{item.agent}</span>
+                            <span className="font-medium">
+                              {(item as any).value}
+                            </span>
+                          </div>
+                          <div className="flex items-center justify-between">
+                            <span className="text-xs text-gray-500">
+                              {item.time}
+                            </span>
+                            <div className="flex items-center gap-2">
+                              <Button
+                                size="sm"
+                                variant="outline"
+                                className="h-6 px-2 text-xs"
+                              >
+                                View Details
+                              </Button>
+                              <div
+                                className="w-6 h-6 bg-indigo-100 rounded-full flex items-center justify-center cursor-pointer hover:bg-indigo-200"
+                                onClick={() => handleBotIconClick(item.id)}
+                              >
+                                <Bot className="h-3 w-3 text-indigo-600" />
+                              </div>
+                            </div>
+                          </div>
+                        </div>
+                      </Card>
+                    ))}
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            {/* Decision taken by AI - Moved to third position */}
             <div className="w-[800px] flex-shrink-0">
               {/* Main Header */}
               <div className="bg-blue-100 text-blue-900 px-4 py-3 rounded-t-lg font-medium text-sm">
@@ -567,88 +1229,6 @@ const Collaboration: React.FC = () => {
                           <div className="flex items-center justify-between text-xs text-gray-600">
                             <span>{item.agent}</span>
                             <span>{item.time}</span>
-                          </div>
-                        </div>
-                      </Card>
-                    ))}
-                  </div>
-                </div>
-              </div>
-            </div>
-
-            {/* Decisions pending on Humans */}
-            <div className="w-[500px] flex-shrink-0">
-              {/* Main Header */}
-              <div className="bg-orange-100 text-orange-900 px-4 py-3 rounded-t-lg font-medium text-sm">
-                Decisions pending on Humans
-              </div>
-
-              {/* Sub-column */}
-              <div className="bg-gray-100 p-2">
-                <div className="bg-white rounded-lg border border-gray-200">
-                  <div className="flex items-center gap-2 px-3 py-2 border-b border-gray-200">
-                    <div className="w-1 h-4 bg-orange-500 rounded-full"></div>
-                    <span className="text-sm font-medium text-gray-900">
-                      Awaiting Human Approval
-                    </span>
-                    <Badge className="ml-auto bg-gray-300 text-gray-700 text-xs px-2 py-0.5">
-                      {columnData["awaiting-approval"].length}
-                    </Badge>
-                  </div>
-                  <div
-                    className={`p-3 space-y-3 min-h-[500px] transition-colors ${
-                      dragOverColumn === "awaiting-approval"
-                        ? "bg-orange-50 border-2 border-orange-300 border-dashed"
-                        : ""
-                    }`}
-                    onDragOver={handleDragOver}
-                    onDragEnter={(e) => handleDragEnter(e, "awaiting-approval")}
-                    onDragLeave={handleDragLeave}
-                    onDrop={(e) => handleDrop(e, "awaiting-approval")}
-                  >
-                    {columnData["awaiting-approval"].map((item) => (
-                      <Card
-                        key={item.id}
-                        className={`p-3 bg-white border border-gray-200 cursor-move hover:shadow-md transition-all rounded-md ${
-                          draggedItem?.id === item.id
-                            ? "opacity-50 scale-95"
-                            : ""
-                        }`}
-                        draggable
-                        onDragStart={(e) =>
-                          handleDragStart(e, item, "awaiting-approval")
-                        }
-                        onDragEnd={handleDragEnd}
-                      >
-                        <div className="space-y-2">
-                          <div className="flex items-start justify-between">
-                            <div className="flex items-center gap-2">
-                              <GripVertical className="h-4 w-4 text-gray-400 cursor-grab" />
-                              <h4 className="text-sm font-medium text-gray-900">
-                                {item.title}
-                              </h4>
-                            </div>
-                            <Badge className="bg-red-100 text-red-700 text-xs px-2 py-0.5 whitespace-nowrap">
-                              {item.priority}
-                            </Badge>
-                          </div>
-                          <div className="flex items-center justify-between text-xs text-gray-600">
-                            <span>{item.agent}</span>
-                            <span className="font-medium">
-                              {(item as any).value}
-                            </span>
-                          </div>
-                          <div className="flex items-center justify-between">
-                            <span className="text-xs text-gray-500">
-                              {item.time}
-                            </span>
-                            <Button
-                              size="sm"
-                              variant="outline"
-                              className="h-6 px-2 text-xs"
-                            >
-                              View Details
-                            </Button>
                           </div>
                         </div>
                       </Card>
@@ -885,6 +1465,4 @@ const Collaboration: React.FC = () => {
       </div>
     </div>
   );
-};
-
-export default Collaboration;
+}

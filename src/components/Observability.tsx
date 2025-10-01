@@ -158,56 +158,56 @@ const Observability: React.FC = () => {
 
   const agentPerformance = [
     {
-      name: "Customer Support Agent",
-      requests: 12847,
+      name: "Incident Management Agent",
+      requests: 15847,
       successRate: 98.9,
-      avgResponseTime: 165,
+      avgResponseTime: 145,
       status: "healthy",
       uptime: "99.8%",
     },
     {
-      name: "Sales Assistant",
-      requests: 8934,
+      name: "Change Management Agent",
+      requests: 12934,
       successRate: 97.2,
-      avgResponseTime: 198,
+      avgResponseTime: 178,
       status: "healthy",
       uptime: "99.3%",
     },
     {
-      name: "Content Generator",
-      requests: 6721,
+      name: "Service Request Agent",
+      requests: 9721,
       successRate: 96.8,
-      avgResponseTime: 287,
+      avgResponseTime: 267,
       status: "healthy",
       uptime: "98.9%",
     },
     {
-      name: "Data Analyzer",
-      requests: 4892,
+      name: "Problem Management Agent",
+      requests: 6892,
       successRate: 95.4,
-      avgResponseTime: 412,
+      avgResponseTime: 392,
       status: "warning",
       uptime: "97.6%",
     },
     {
-      name: "Email Marketing Bot",
-      requests: 3456,
+      name: "Knowledge Management Agent",
+      requests: 5456,
       successRate: 98.1,
       avgResponseTime: 156,
       status: "healthy",
       uptime: "99.1%",
     },
     {
-      name: "Social Media Manager",
-      requests: 2134,
+      name: "Asset Management Agent",
+      requests: 3134,
       successRate: 94.7,
       avgResponseTime: 523,
       status: "critical",
       uptime: "94.2%",
     },
     {
-      name: "Document Processor",
-      requests: 1876,
+      name: "SLA Management Agent",
+      requests: 2876,
       successRate: 97.5,
       avgResponseTime: 234,
       status: "healthy",
@@ -219,49 +219,49 @@ const Observability: React.FC = () => {
     {
       id: 1,
       severity: "critical",
-      message: "Social Media Manager experiencing high error rate (5.3%)",
+      message: "Asset Management Agent experiencing high error rate (5.3%)",
       timestamp: "2 minutes ago",
-      agent: "Social Media Manager",
+      agent: "Asset Management Agent",
       resolved: false,
     },
     {
       id: 2,
       severity: "warning",
-      message: "Data Analyzer response time above threshold (412ms)",
+      message: "Problem Management Agent response time above threshold (392ms)",
       timestamp: "8 minutes ago",
-      agent: "Data Analyzer",
+      agent: "Problem Management Agent",
       resolved: false,
     },
     {
       id: 3,
       severity: "info",
-      message: "Customer Support Agent scaled up due to high demand",
+      message: "Incident Management Agent scaled up due to high P1 incidents",
       timestamp: "23 minutes ago",
-      agent: "Customer Support Agent",
+      agent: "Incident Management Agent",
       resolved: true,
     },
     {
       id: 4,
       severity: "warning",
-      message: "Memory usage spike detected in Content Generator",
+      message: "Memory usage spike detected in Change Management Agent",
       timestamp: "1 hour ago",
-      agent: "Content Generator",
+      agent: "Change Management Agent",
       resolved: true,
     },
     {
       id: 5,
       severity: "info",
-      message: "Email Marketing Bot deployment completed successfully",
+      message: "Service Request Agent auto-approval deployment completed",
       timestamp: "2 hours ago",
-      agent: "Email Marketing Bot",
+      agent: "Service Request Agent",
       resolved: true,
     },
     {
       id: 6,
       severity: "critical",
-      message: "Database connection timeout in Document Processor",
+      message: "CMDB connection timeout in Asset Management Agent",
       timestamp: "3 hours ago",
-      agent: "Document Processor",
+      agent: "Asset Management Agent",
       resolved: true,
     },
   ];
@@ -297,10 +297,10 @@ const Observability: React.FC = () => {
       {/* Header */}
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-3xl font-bold text-text-heading">Dashboard</h1>
+          <h1 className="text-3xl font-bold text-text-heading"> Dashboard</h1>
           <p className="text-muted-foreground">
-            Monitor performance, track metrics, and manage alerts for your AI
-            agents
+            Monitor agent performance, track service metrics, and manage IT
+            service alerts
           </p>
         </div>
         <div className="flex gap-2">
@@ -322,12 +322,18 @@ const Observability: React.FC = () => {
           </SelectTrigger>
           <SelectContent>
             <SelectItem value="all">All Agents</SelectItem>
-            <SelectItem value="customer-support">
-              Customer Support Agent
+            <SelectItem value="incident-management">
+              Incident Management Agent
             </SelectItem>
-            <SelectItem value="sales-assistant">Sales Assistant</SelectItem>
-            <SelectItem value="content-generator">Content Generator</SelectItem>
-            <SelectItem value="data-analyzer">Data Analyzer</SelectItem>
+            <SelectItem value="change-management">
+              Change Management Agent
+            </SelectItem>
+            <SelectItem value="service-request">
+              Service Request Agent
+            </SelectItem>
+            <SelectItem value="problem-management">
+              Problem Management Agent
+            </SelectItem>
           </SelectContent>
         </Select>
         <Select value={selectedDuration} onValueChange={setSelectedDuration}>
@@ -498,9 +504,9 @@ const Observability: React.FC = () => {
       {/* Main Content */}
       <Tabs defaultValue="performance" className="space-y-6">
         <TabsList>
-          <TabsTrigger value="performance">Agent Performance</TabsTrigger>
-          <TabsTrigger value="alerts">Alerts & Issues</TabsTrigger>
-          <TabsTrigger value="logs">System Logs</TabsTrigger>
+          <TabsTrigger value="performance"> Agent Performance</TabsTrigger>
+          <TabsTrigger value="alerts">Service Alerts & Issues</TabsTrigger>
+          <TabsTrigger value="logs"> System Logs</TabsTrigger>
         </TabsList>
 
         <TabsContent value="performance" className="space-y-4">
@@ -552,7 +558,7 @@ const Observability: React.FC = () => {
 
         <TabsContent value="alerts" className="space-y-4">
           <div className="flex items-center justify-between">
-            <h3 className="text-lg font-semibold">Recent Alerts</h3>
+            <h3 className="text-lg font-semibold">Recent Service Alerts</h3>
             <div className="flex gap-2">
               <Badge variant="outline">
                 {recentAlerts.filter((a) => !a.resolved).length} Active
@@ -620,7 +626,7 @@ const Observability: React.FC = () => {
         <TabsContent value="logs" className="space-y-4">
           <Card>
             <CardHeader>
-              <CardTitle>System Activity Timeline</CardTitle>
+              <CardTitle> System Activity Timeline</CardTitle>
             </CardHeader>
             <CardContent>
               <div className="space-y-4">
@@ -629,66 +635,70 @@ const Observability: React.FC = () => {
                     time: "14:32:15",
                     type: "info",
                     message:
-                      "Customer Support Agent processed 1,247 requests in the last hour",
-                    agent: "Customer Support Agent",
+                      "Incident Management Agent processed 1,247 P1/P2 incidents in the last hour",
+                    agent: "Incident Management Agent",
                     details:
-                      "Peak performance maintained with 98.9% success rate",
+                      "Peak performance maintained with 98.9% auto-resolution rate",
                   },
                   {
                     time: "14:28:42",
                     type: "warning",
-                    message: "Data Analyzer response time increased to 412ms",
-                    agent: "Data Analyzer",
-                    details: "Investigating potential database bottleneck",
+                    message:
+                      "Problem Management Agent response time increased to 392ms",
+                    agent: "Problem Management Agent",
+                    details: "Investigating potential CMDB query bottleneck",
                   },
                   {
                     time: "14:25:18",
                     type: "success",
                     message:
-                      "Sales Assistant completed batch processing of 500 leads",
-                    agent: "Sales Assistant",
-                    details: "Generated 127 qualified prospects for follow-up",
+                      "Change Management Agent completed batch processing of 500 change requests",
+                    agent: "Change Management Agent",
+                    details:
+                      "Auto-approved 127 standard changes for deployment",
                   },
                   {
                     time: "14:21:03",
                     type: "error",
-                    message: "Social Media Manager encountered API rate limit",
-                    agent: "Social Media Manager",
-                    details: "Implementing exponential backoff strategy",
+                    message:
+                      "Asset Management Agent encountered CMDB API rate limit",
+                    agent: "Asset Management Agent",
+                    details:
+                      "Implementing exponential backoff for CI discovery",
                   },
                   {
                     time: "14:18:56",
                     type: "info",
                     message:
-                      "Content Generator started new article generation workflow",
-                    agent: "Content Generator",
+                      "Service Request Agent started new fulfillment workflow",
+                    agent: "Service Request Agent",
                     details:
-                      "Processing 15 content requests from marketing team",
+                      "Processing 15 hardware requests from IT procurement",
                   },
                   {
                     time: "14:15:22",
                     type: "success",
                     message:
-                      "Email Marketing Bot sent 2,340 personalized emails",
-                    agent: "Email Marketing Bot",
+                      "Knowledge Management Agent created 23 new KB articles",
+                    agent: "Knowledge Management Agent",
                     details:
-                      "Campaign: Q4 Product Launch - 23.4% open rate achieved",
+                      "Auto-generated from resolved P2 incidents - 89% accuracy rate",
                   },
                   {
                     time: "14:12:07",
                     type: "warning",
-                    message: "Document Processor memory usage at 78%",
-                    agent: "Document Processor",
+                    message: "SLA Management Agent memory usage at 78%",
+                    agent: "SLA Management Agent",
                     details:
-                      "Processing large PDF batch - monitoring resource usage",
+                      "Processing large SLA breach analysis - monitoring resource usage",
                   },
                   {
                     time: "14:08:41",
                     type: "info",
-                    message: "System health check completed successfully",
+                    message: "  system health check completed successfully",
                     agent: "System Monitor",
                     details:
-                      "All agents operational - 97.8% overall success rate",
+                      "All   agents operational - 97.8% overall service availability",
                   },
                 ].map((log, index) => (
                   <div
