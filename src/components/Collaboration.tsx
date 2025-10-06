@@ -26,6 +26,7 @@ import {
   Plus,
   Check,
   Loader2,
+  Lightbulb,
 } from "lucide-react";
 
 export default function Collaboration() {
@@ -578,7 +579,17 @@ export default function Collaboration() {
             executeAction();
           } else {
             // Show final bot message with details
-            const detailsMessage = `Ticket has been updated. Here are additional details:\n• Device: Windows 11 (latest), home WiFi connection\n• Works from office network, issue isolated to home\n• ISP: Comcast (standard router)\n• Recent change: NortonPlus antivirus installed 2 days ago\n• Likely cause: Antivirus blocking VPN ports or NAT-T traversal issue\n• Recommended action: Configure firewall exception for VPN or temporarily disable to test`;
+            const detailsMessage = {
+              type: "vpn-details",
+              basicInfo: [
+                "Device: Windows 11 (latest), home WiFi connection",
+                "Works from office network, issue isolated to home",
+                "ISP: Comcast (standard router)",
+                "Recent change: NortonPlus antivirus installed 2 days ago",
+              ],
+              likelyCause: "Antivirus blocking VPN ports or NAT-T traversal issue",
+              recommendedAction: "Configure firewall exception for VPN or temporarily disable to test",
+            };
 
             setConversations((prev) => ({
               ...prev,
@@ -1170,9 +1181,41 @@ export default function Collaboration() {
                                             ? "You"
                                             : "AI Agent"}
                                         </div>
-                                        <div className="whitespace-pre-line">
-                                          {msg.text}
-                                        </div>
+                                        {typeof msg.text === "string" ? (
+                                          <div className="whitespace-pre-line">
+                                            {msg.text}
+                                          </div>
+                                        ) : (
+                                          <div className="space-y-2">
+                                            <div className="text-xs font-semibold text-gray-900 mb-2">
+                                              Ticket has been updated. Here are additional details:
+                                            </div>
+                                            <div className="space-y-1.5">
+                                              {msg.text.basicInfo.map((line, i) => (
+                                                <div key={i} className="flex items-start gap-2">
+                                                  <span className="text-blue-600 mt-0.5">•</span>
+                                                  <span>{line}</span>
+                                                </div>
+                                              ))}
+                                            </div>
+                                            <div className="bg-yellow-50 border border-yellow-200 rounded p-2 space-y-2 mt-2">
+                                              <div className="flex items-start gap-2 text-xs">
+                                                <Lightbulb className="h-4 w-4 text-yellow-600 mt-0.5 flex-shrink-0" />
+                                                <div>
+                                                  <span className="font-semibold">Likely cause: </span>
+                                                  <span>{msg.text.likelyCause}</span>
+                                                </div>
+                                              </div>
+                                              <div className="flex items-start gap-2 text-xs">
+                                                <Lightbulb className="h-4 w-4 text-yellow-600 mt-0.5 flex-shrink-0" />
+                                                <div>
+                                                  <span className="font-semibold">Recommended action: </span>
+                                                  <span>{msg.text.recommendedAction}</span>
+                                                </div>
+                                              </div>
+                                            </div>
+                                          </div>
+                                        )}
                                         <div className="text-gray-500 mt-1">
                                           {msg.timestamp}
                                         </div>
@@ -1192,47 +1235,28 @@ export default function Collaboration() {
                                   Updated ticket details
                                 </div>
                                 <div className="text-xs text-gray-700 space-y-1.5">
-                                  {vpnTaskDetails[item.id]
-                                    .split("\n")
-                                    .slice(1)
-                                    .map((line, idx) => {
-                                      // Remove bullet if it already exists in the line
-                                      const cleanLine = line.replace(
-                                        /^•\s*/,
-                                        "",
-                                      );
-                                      const colonIndex = cleanLine.indexOf(":");
-                                      const label =
-                                        colonIndex > 0
-                                          ? cleanLine.substring(
-                                              0,
-                                              colonIndex + 1,
-                                            )
-                                          : "";
-                                      const value =
-                                        colonIndex > 0
-                                          ? cleanLine.substring(colonIndex + 1)
-                                          : cleanLine;
-
-                                      return (
-                                        <div
-                                          key={idx}
-                                          className="flex items-start gap-2"
-                                        >
-                                          <span className="text-blue-600 mt-0.5">
-                                            •
-                                          </span>
-                                          <span>
-                                            {label && (
-                                              <span className="font-semibold">
-                                                {label}
-                                              </span>
-                                            )}
-                                            {value}
-                                          </span>
-                                        </div>
-                                      );
-                                    })}
+                                  {vpnTaskDetails[item.id].basicInfo.map((line, idx) => (
+                                    <div key={idx} className="flex items-start gap-2">
+                                      <span className="text-blue-600 mt-0.5">•</span>
+                                      <span>{line}</span>
+                                    </div>
+                                  ))}
+                                </div>
+                                <div className="bg-yellow-50 border border-yellow-200 rounded p-2 space-y-2 mt-2 text-xs">
+                                  <div className="flex items-start gap-2">
+                                    <Lightbulb className="h-3.5 w-3.5 text-yellow-600 mt-0.5 flex-shrink-0" />
+                                    <div>
+                                      <span className="font-semibold">Likely cause: </span>
+                                      <span>{vpnTaskDetails[item.id].likelyCause}</span>
+                                    </div>
+                                  </div>
+                                  <div className="flex items-start gap-2">
+                                    <Lightbulb className="h-3.5 w-3.5 text-yellow-600 mt-0.5 flex-shrink-0" />
+                                    <div>
+                                      <span className="font-semibold">Recommended action: </span>
+                                      <span>{vpnTaskDetails[item.id].recommendedAction}</span>
+                                    </div>
+                                  </div>
                                 </div>
                               </div>
                             )}
