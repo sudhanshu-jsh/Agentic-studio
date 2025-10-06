@@ -554,7 +554,7 @@ export default function Collaboration() {
         duration: 3000,
         icon: "loading",
       },
-      { text: "message sent", duration: 2000, icon: "check" },
+      { text: "Message sent", duration: 2000, icon: "check" },
       {
         text: "Gathering additional information",
         duration: 5000,
@@ -705,7 +705,7 @@ export default function Collaboration() {
       setColumnData((prev) => ({
         ...prev,
         "awaiting-approval": prev["awaiting-approval"].filter(
-          (t) => t.id.toString() !== taskId,
+          (t: any) => t.id.toString() !== taskId,
         ),
         "ai-pipeline": [updatedTask, ...prev["ai-pipeline"]],
       }));
