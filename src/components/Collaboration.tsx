@@ -158,6 +158,15 @@ export default function Collaboration() {
         value: "Customer Impact",
       },
       {
+        id: 24,
+        title: "VPN Connection Issues",
+        agent: "Network Support Agent",
+        time: "10 min ago",
+        priority: "High",
+        value: "User: Sarah",
+        isVpnTask: true,
+      },
+      {
         id: 8,
         title: "Emergency change deployment",
         agent: "Change Management Agent",
@@ -387,6 +396,8 @@ export default function Collaboration() {
   const [showAIPipelineConversation, setShowAIPipelineConversation] = useState(
     {},
   );
+  const [vpnTaskDetails, setVpnTaskDetails] = useState({});
+  const [showVpnDetails, setShowVpnDetails] = useState({});
 
   // Handle bot icon click for AI Pipeline
   const handleAIPipelineBotClick = (taskId) => {
@@ -403,7 +414,18 @@ export default function Collaboration() {
 
   // Handle bot icon click for human approval
   const handleBotIconClick = (taskId) => {
-    setSelectedTaskForChat(taskId);
+    if (selectedTaskForChat === taskId) {
+      // Close the bot - this will show the VPN details box if available
+      setSelectedTaskForChat(null);
+    } else {
+      // Open the bot
+      setSelectedTaskForChat(taskId);
+      // Reset VPN details visibility when opening chat
+      setShowVpnDetails((prev) => ({
+        ...prev,
+        [taskId]: false,
+      }));
+    }
   };
 
   // Handle task description send for AI Pipeline
@@ -441,6 +463,15 @@ export default function Collaboration() {
     if (!taskDescription.trim()) return;
 
     const taskId = selectedTaskForChat;
+    const task = columnData["awaiting-approval"].find((t) => t.id === taskId);
+
+    // Check if this is the VPN task
+    if (task && (task as any).isVpnTask) {
+      handleVpnTaskFlow(taskId);
+      return;
+    }
+
+    // For Manish scenario - create conversation and start action sequence
     const newConversation = {
       id: Date.now(),
       messages: [
@@ -463,10 +494,124 @@ export default function Collaboration() {
     }));
 
     setTaskDescription("");
-    setSelectedTaskForChat(null);
+    // Don't close the chat yet - keep it open to show action steps
+    // setSelectedTaskForChat(null);
 
     // Start action sequence
     startActionSequence(taskId.toString());
+  };
+
+  // Handle VPN task flow
+  const handleVpnTaskFlow = (taskId) => {
+    // Create initial conversation with user message
+    const newConversation = {
+      id: Date.now(),
+      messages: [
+        {
+          type: "user",
+          text: taskDescription,
+          timestamp: new Date().toLocaleTimeString(),
+        },
+      ],
+    };
+
+    setConversations((prev) => ({
+      ...prev,
+      [taskId]: newConversation,
+    }));
+
+    setTaskDescription("");
+
+    // Add "On it!" message after 1 second
+    setTimeout(() => {
+      setConversations((prev) => ({
+        ...prev,
+        [taskId]: {
+          ...prev[taskId],
+          messages: [
+            ...prev[taskId].messages,
+            {
+              type: "bot",
+              text: "On it!",
+              timestamp: new Date().toLocaleTimeString(),
+            },
+          ],
+        },
+      }));
+
+      // Start action sequence after showing "On it!"
+      setTimeout(() => {
+        startVpnActionSequence(taskId.toString());
+      }, 500);
+    }, 1000);
+  };
+
+  // VPN task action sequence
+  const startVpnActionSequence = (taskId) => {
+    const actions = [
+      {
+        text: "Invoked Teams MCP to send message to @Sarah",
+        duration: 3000,
+        icon: "loading",
+      },
+      { text: "message sent", duration: 2000, icon: "check" },
+      {
+        text: "Gathering additional information",
+        duration: 5000,
+        icon: "loading",
+      },
+    ];
+
+    let currentIndex = 0;
+
+    const executeAction = () => {
+      if (currentIndex < actions.length) {
+        const action = actions[currentIndex];
+        setCurrentActionStep((prev) => ({
+          ...prev,
+          [taskId]: action,
+        }));
+
+        setTimeout(() => {
+          currentIndex++;
+          if (currentIndex < actions.length) {
+            executeAction();
+          } else {
+            // Show final bot message with details
+            const detailsMessage = `Ticket has been updated. Here are additional details:\n• Device: Windows 11 (latest), home WiFi connection\n• Works from office network, issue isolated to home\n• ISP: Comcast (standard router)\n• Recent change: NortonPlus antivirus installed 2 days ago\n• Likely cause: Antivirus blocking VPN ports or NAT-T traversal issue\n• Recommended action: Configure firewall exception for VPN or temporarily disable to test`;
+
+            setConversations((prev) => ({
+              ...prev,
+              [taskId]: {
+                ...prev[taskId],
+                messages: [
+                  ...prev[taskId].messages,
+                  {
+                    type: "bot",
+                    text: detailsMessage,
+                    timestamp: new Date().toLocaleTimeString(),
+                  },
+                ],
+              },
+            }));
+
+            // Store the details for showing in card
+            setVpnTaskDetails((prev) => ({
+              ...prev,
+              [taskId]: detailsMessage,
+            }));
+
+            // Clear action steps
+            setCurrentActionStep((prev) => ({
+              ...prev,
+              [taskId]: null,
+            }));
+          }
+        }, action.duration);
+      }
+    };
+
+    executeAction();
   };
 
   // Start action sequence for human approval tasks
@@ -501,31 +646,34 @@ export default function Collaboration() {
           if (currentIndex < actions.length) {
             executeAction();
           } else {
-            // Show waiting status bubble
-            setConversations((prev) => ({
-              ...prev,
-              [taskId]: {
-                ...prev[taskId],
-                messages: [
-                  ...prev[taskId].messages,
-                  {
-                    type: "bot",
-                    text: "Status: waiting",
-                    timestamp: new Date().toLocaleTimeString(),
-                  },
-                ],
-              },
-            }));
-
             // Clear action steps
             setCurrentActionStep((prev) => ({
               ...prev,
               [taskId]: null,
             }));
 
-            // Move task to AI pipeline after 2 seconds
+            // Close the chat
+            setSelectedTaskForChat(null);
+
+            // Move task to AI pipeline first
+            moveTaskToAIPipeline(taskId.toString());
+
+            // After 2 seconds, add "Status: waiting" message
             setTimeout(() => {
-              moveTaskToAIPipeline(taskId.toString());
+              setConversations((prev) => ({
+                ...prev,
+                [taskId]: {
+                  ...prev[taskId],
+                  messages: [
+                    ...prev[taskId].messages,
+                    {
+                      type: "bot",
+                      text: "Status: waiting",
+                      timestamp: new Date().toLocaleTimeString(),
+                    },
+                  ],
+                },
+              }));
             }, 2000);
           }
         }, action.duration);
@@ -561,6 +709,9 @@ export default function Collaboration() {
         ),
         "ai-pipeline": [updatedTask, ...prev["ai-pipeline"]],
       }));
+
+      // Don't auto-open the conversation - keep it hidden by default
+      // User needs to click the bot icon to see it
     }
   };
 
@@ -689,17 +840,17 @@ export default function Collaboration() {
         <div className="overflow-x-auto">
           <div className="flex gap-6 min-w-max pb-4">
             {/* AI Pipeline - Updated to show conversation history */}
-            <div className="w-[400px] flex-shrink-0">
-              {/* Main Header */}
-              <div className="bg-indigo-100 text-indigo-900 px-4 py-3 rounded-t-lg font-medium text-sm flex items-center gap-2">
+            <div className="w-[400px] flex-shrink-0 flex flex-col h-[calc(100vh-140px)]">
+              {/* Main Header - Fixed */}
+              <div className="bg-indigo-100 text-indigo-900 px-4 py-3 rounded-t-lg font-medium text-sm flex items-center gap-2 flex-shrink-0">
                 <Bot className="h-4 w-4" />
                 AI Pipeline
               </div>
 
-              {/* Sub-column */}
-              <div className="bg-gray-100 p-2">
-                <div className="bg-white rounded-lg border border-gray-200">
-                  <div className="flex items-center gap-2 px-3 py-2 border-b border-gray-200">
+              {/* Sub-column - Scrollable */}
+              <div className="bg-gray-100 p-2 flex-1 overflow-hidden">
+                <div className="bg-white rounded-lg border border-gray-200 h-full flex flex-col">
+                  <div className="flex items-center gap-2 px-3 py-2 border-b border-gray-200 flex-shrink-0">
                     <div className="w-1 h-4 bg-indigo-500 rounded-full"></div>
                     <span className="text-sm font-medium text-gray-900">
                       Tasks to Perform
@@ -709,7 +860,7 @@ export default function Collaboration() {
                     </Badge>
                   </div>
                   <div
-                    className={`p-3 space-y-3 min-h-[500px] transition-colors ${
+                    className={`p-3 space-y-3 overflow-y-auto flex-1 transition-colors ${
                       dragOverColumn === "ai-pipeline"
                         ? "bg-indigo-50 border-2 border-indigo-300 border-dashed"
                         : ""
@@ -728,7 +879,9 @@ export default function Collaboration() {
                             : ""
                         }`}
                         draggable
-                        onDragStart={(e) => handleDragStart(e, item, "ai-pipeline")}
+                        onDragStart={(e) =>
+                          handleDragStart(e, item, "ai-pipeline")
+                        }
                       >
                         <div className="space-y-2">
                           <div className="flex items-start justify-between">
@@ -855,16 +1008,16 @@ export default function Collaboration() {
             </div>
 
             {/* Decisions pending on Humans - Updated with bot functionality */}
-            <div className="w-[500px] flex-shrink-0">
-              {/* Main Header */}
-              <div className="bg-orange-100 text-orange-900 px-4 py-3 rounded-t-lg font-medium text-sm">
+            <div className="w-[500px] flex-shrink-0 flex flex-col h-[calc(100vh-140px)]">
+              {/* Main Header - Fixed */}
+              <div className="bg-orange-100 text-orange-900 px-4 py-3 rounded-t-lg font-medium text-sm flex-shrink-0">
                 Decisions pending on Humans
               </div>
 
-              {/* Sub-column */}
-              <div className="bg-gray-100 p-2">
-                <div className="bg-white rounded-lg border border-gray-200">
-                  <div className="flex items-center gap-2 px-3 py-2 border-b border-gray-200">
+              {/* Sub-column - Scrollable */}
+              <div className="bg-gray-100 p-2 flex-1 overflow-hidden">
+                <div className="bg-white rounded-lg border border-gray-200 h-full flex flex-col">
+                  <div className="flex items-center gap-2 px-3 py-2 border-b border-gray-200 flex-shrink-0">
                     <div className="w-1 h-4 bg-orange-500 rounded-full"></div>
                     <span className="text-sm font-medium text-gray-900">
                       Awaiting Human Approval
@@ -874,7 +1027,7 @@ export default function Collaboration() {
                     </Badge>
                   </div>
                   <div
-                    className={`p-3 space-y-3 min-h-[500px] transition-colors ${
+                    className={`p-3 space-y-3 overflow-y-auto flex-1 transition-colors ${
                       dragOverColumn === "awaiting-approval"
                         ? "bg-orange-50 border-2 border-orange-300 border-dashed"
                         : ""
@@ -995,36 +1148,98 @@ export default function Collaboration() {
                               </div>
                             )}
 
-                          {/* Show conversation if exists */}
-                          {conversations[item.id] && (
-                            <div className="space-y-2">
-                              {conversations[item.id].messages.map(
-                                (msg, idx) => (
-                                  <div
-                                    key={idx}
-                                    className={`flex ${msg.type === "user" ? "justify-end" : "justify-start"}`}
-                                  >
+                          {/* Conversation history - only show when bot is open */}
+                          {selectedTaskForChat === item.id &&
+                            conversations[item.id] && (
+                              <div className="space-y-2 mb-2 mt-2">
+                                {conversations[item.id].messages.map(
+                                  (msg, idx) => (
                                     <div
-                                      className={`max-w-[80%] p-2 rounded-lg text-xs ${
-                                        msg.type === "user"
-                                          ? "bg-blue-100 text-blue-900"
-                                          : "bg-gray-100 text-gray-900"
-                                      }`}
+                                      key={idx}
+                                      className={`flex ${msg.type === "user" ? "justify-end" : "justify-start"}`}
                                     >
-                                      <p>{msg.text}</p>
-                                      <span className="text-xs opacity-70">
-                                        {msg.timestamp}
-                                      </span>
+                                      <div
+                                        className={`max-w-[80%] p-2 rounded-lg text-xs ${
+                                          msg.type === "user"
+                                            ? "bg-blue-100 text-blue-900"
+                                            : "bg-gray-100 text-gray-900"
+                                        }`}
+                                      >
+                                        <div className="font-medium mb-1">
+                                          {msg.type === "user"
+                                            ? "You"
+                                            : "AI Agent"}
+                                        </div>
+                                        <div className="whitespace-pre-line">
+                                          {msg.text}
+                                        </div>
+                                        <div className="text-gray-500 mt-1">
+                                          {msg.timestamp}
+                                        </div>
+                                      </div>
                                     </div>
-                                  </div>
-                                ),
-                              )}
-                            </div>
-                          )}
+                                  ),
+                                )}
+                              </div>
+                            )}
+
+                          {/* Show VPN details box when bot is closed and details are available */}
+                          {(item as any).isVpnTask &&
+                            vpnTaskDetails[item.id] &&
+                            selectedTaskForChat !== item.id && (
+                              <div className="bg-blue-50 border border-blue-200 rounded p-3 space-y-2 mt-2">
+                                <div className="text-xs font-semibold text-blue-900">
+                                  Updated ticket details
+                                </div>
+                                <div className="text-xs text-gray-700 space-y-1.5">
+                                  {vpnTaskDetails[item.id]
+                                    .split("\n")
+                                    .slice(1)
+                                    .map((line, idx) => {
+                                      // Remove bullet if it already exists in the line
+                                      const cleanLine = line.replace(
+                                        /^•\s*/,
+                                        "",
+                                      );
+                                      const colonIndex = cleanLine.indexOf(":");
+                                      const label =
+                                        colonIndex > 0
+                                          ? cleanLine.substring(
+                                              0,
+                                              colonIndex + 1,
+                                            )
+                                          : "";
+                                      const value =
+                                        colonIndex > 0
+                                          ? cleanLine.substring(colonIndex + 1)
+                                          : cleanLine;
+
+                                      return (
+                                        <div
+                                          key={idx}
+                                          className="flex items-start gap-2"
+                                        >
+                                          <span className="text-blue-600 mt-0.5">
+                                            •
+                                          </span>
+                                          <span>
+                                            {label && (
+                                              <span className="font-semibold">
+                                                {label}
+                                              </span>
+                                            )}
+                                            {value}
+                                          </span>
+                                        </div>
+                                      );
+                                    })}
+                                </div>
+                              </div>
+                            )}
 
                           {/* Show current action step */}
                           {currentActionStep[item.id] && (
-                            <div className="flex items-center gap-2 text-xs text-gray-700 bg-blue-50 p-2 rounded">
+                            <div className="flex items-center gap-2 text-xs text-gray-700 bg-blue-50 p-2 rounded mt-2">
                               {currentActionStep[item.id].icon === "loading" ? (
                                 <div className="w-3 h-3 bg-green-500 rounded-full animate-pulse"></div>
                               ) : (
@@ -1102,17 +1317,17 @@ export default function Collaboration() {
             </div>
 
             {/* Decision taken by AI - Moved to third position */}
-            <div className="w-[800px] flex-shrink-0">
-              {/* Main Header */}
-              <div className="bg-blue-100 text-blue-900 px-4 py-3 rounded-t-lg font-medium text-sm">
+            <div className="w-[800px] flex-shrink-0 flex flex-col h-[calc(100vh-140px)]">
+              {/* Main Header - Fixed */}
+              <div className="bg-blue-100 text-blue-900 px-4 py-3 rounded-t-lg font-medium text-sm flex-shrink-0">
                 Decision taken by AI
               </div>
 
-              {/* Sub-columns */}
-              <div className="grid grid-cols-2 gap-4 bg-gray-100 p-2">
+              {/* Sub-columns - Scrollable */}
+              <div className="grid grid-cols-2 gap-4 bg-gray-100 p-2 flex-1 overflow-hidden">
                 {/* AI Executed Column */}
-                <div className="bg-white rounded-lg border border-gray-200">
-                  <div className="flex items-center gap-2 px-3 py-2 border-b border-gray-200">
+                <div className="bg-white rounded-lg border border-gray-200 flex flex-col h-full">
+                  <div className="flex items-center gap-2 px-3 py-2 border-b border-gray-200 flex-shrink-0">
                     <div className="w-1 h-4 bg-blue-500 rounded-full"></div>
                     <span className="text-sm font-medium text-gray-900">
                       AI Executed
@@ -1122,7 +1337,7 @@ export default function Collaboration() {
                     </Badge>
                   </div>
                   <div
-                    className={`p-3 space-y-3 min-h-[500px] transition-colors ${
+                    className={`p-3 space-y-3 overflow-y-auto flex-1 transition-colors ${
                       dragOverColumn === "ai-executed"
                         ? "bg-blue-50 border-2 border-blue-300 border-dashed"
                         : ""
@@ -1179,8 +1394,8 @@ export default function Collaboration() {
                 </div>
 
                 {/* Execution failed Column */}
-                <div className="bg-white rounded-lg border border-gray-200">
-                  <div className="flex items-center gap-2 px-3 py-2 border-b border-gray-200">
+                <div className="bg-white rounded-lg border border-gray-200 flex flex-col h-full">
+                  <div className="flex items-center gap-2 px-3 py-2 border-b border-gray-200 flex-shrink-0">
                     <div className="w-1 h-4 bg-red-500 rounded-full"></div>
                     <span className="text-sm font-medium text-gray-900">
                       Execution failed / aborted
@@ -1190,7 +1405,7 @@ export default function Collaboration() {
                     </Badge>
                   </div>
                   <div
-                    className={`p-3 space-y-3 min-h-[500px] transition-colors ${
+                    className={`p-3 space-y-3 overflow-y-auto flex-1 transition-colors ${
                       dragOverColumn === "ai-failed"
                         ? "bg-red-50 border-2 border-red-300 border-dashed"
                         : ""
@@ -1239,17 +1454,17 @@ export default function Collaboration() {
             </div>
 
             {/* Decision taken by Humans */}
-            <div className="w-[1200px] flex-shrink-0">
-              {/* Main Header */}
-              <div className="bg-green-100 text-green-900 px-4 py-3 rounded-t-lg font-medium text-sm">
+            <div className="w-[1200px] flex-shrink-0 flex flex-col h-[calc(100vh-140px)]">
+              {/* Main Header - Fixed */}
+              <div className="bg-green-100 text-green-900 px-4 py-3 rounded-t-lg font-medium text-sm flex-shrink-0">
                 Decision taken by Humans
               </div>
 
-              {/* Sub-columns */}
-              <div className="grid grid-cols-3 gap-4 bg-gray-100 p-2">
+              {/* Sub-columns - Scrollable */}
+              <div className="grid grid-cols-3 gap-4 bg-gray-100 p-2 flex-1 overflow-hidden">
                 {/* Human Approved / AI Executed */}
-                <div className="bg-white rounded-lg border border-gray-200">
-                  <div className="flex items-center gap-2 px-3 py-2 border-b border-gray-200">
+                <div className="bg-white rounded-lg border border-gray-200 flex flex-col h-full">
+                  <div className="flex items-center gap-2 px-3 py-2 border-b border-gray-200 flex-shrink-0">
                     <div className="w-1 h-4 bg-green-500 rounded-full"></div>
                     <span className="text-sm font-medium text-gray-900">
                       Human Approved / AI Executed
@@ -1259,7 +1474,7 @@ export default function Collaboration() {
                     </Badge>
                   </div>
                   <div
-                    className={`p-3 space-y-3 min-h-[500px] transition-colors ${
+                    className={`p-3 space-y-3 overflow-y-auto flex-1 transition-colors ${
                       dragOverColumn === "human-approved"
                         ? "bg-green-50 border-2 border-green-300 border-dashed"
                         : ""
@@ -1339,8 +1554,8 @@ export default function Collaboration() {
                 </div>
 
                 {/* Human Rejected */}
-                <div className="bg-white rounded-lg border border-gray-200">
-                  <div className="flex items-center gap-2 px-3 py-2 border-b border-gray-200">
+                <div className="bg-white rounded-lg border border-gray-200 flex flex-col h-full">
+                  <div className="flex items-center gap-2 px-3 py-2 border-b border-gray-200 flex-shrink-0">
                     <div className="w-1 h-4 bg-red-500 rounded-full"></div>
                     <span className="text-sm font-medium text-gray-900">
                       Human Rejected
@@ -1350,7 +1565,7 @@ export default function Collaboration() {
                     </Badge>
                   </div>
                   <div
-                    className={`p-3 space-y-3 min-h-[500px] transition-colors ${
+                    className={`p-3 space-y-3 overflow-y-auto flex-1 transition-colors ${
                       dragOverColumn === "human-rejected"
                         ? "bg-red-50 border-2 border-red-300 border-dashed"
                         : ""
@@ -1397,8 +1612,8 @@ export default function Collaboration() {
                 </div>
 
                 {/* Timeout/Expired */}
-                <div className="bg-white rounded-lg border border-gray-200">
-                  <div className="flex items-center gap-2 px-3 py-2 border-b border-gray-200">
+                <div className="bg-white rounded-lg border border-gray-200 flex flex-col h-full">
+                  <div className="flex items-center gap-2 px-3 py-2 border-b border-gray-200 flex-shrink-0">
                     <div className="w-1 h-4 bg-yellow-500 rounded-full"></div>
                     <span className="text-sm font-medium text-gray-900">
                       Timeout/Expired
@@ -1408,7 +1623,7 @@ export default function Collaboration() {
                     </Badge>
                   </div>
                   <div
-                    className={`p-3 space-y-3 min-h-[500px] transition-colors ${
+                    className={`p-3 space-y-3 overflow-y-auto flex-1 transition-colors ${
                       dragOverColumn === "timeout-expired"
                         ? "bg-yellow-50 border-2 border-yellow-300 border-dashed"
                         : ""
