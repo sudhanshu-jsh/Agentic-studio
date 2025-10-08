@@ -158,110 +158,118 @@ const Observability: React.FC = () => {
 
   const agentPerformance = [
     {
-      name: "Incident Management Agent",
+      name: "Intake & Routing Agent",
+      requests: 18234,
+      successRate: 98.7,
+      avgResponseTime: 132,
+      status: "healthy",
+      uptime: "99.9%",
+    },
+    {
+      name: "Solution Identification Agent",
       requests: 15847,
-      successRate: 98.9,
-      avgResponseTime: 145,
+      successRate: 97.8,
+      avgResponseTime: 189,
       status: "healthy",
-      uptime: "99.8%",
+      uptime: "99.5%",
     },
     {
-      name: "Change Management Agent",
+      name: "SLA Management & Risk Agent",
       requests: 12934,
-      successRate: 97.2,
-      avgResponseTime: 178,
+      successRate: 98.2,
+      avgResponseTime: 156,
       status: "healthy",
-      uptime: "99.3%",
+      uptime: "99.7%",
     },
     {
-      name: "Service Request Agent",
+      name: "Customer Experience & CSAT Agent",
       requests: 9721,
-      successRate: 96.8,
+      successRate: 96.9,
+      avgResponseTime: 245,
+      status: "healthy",
+      uptime: "98.8%",
+    },
+    {
+      name: "Problem & Major Incident Detection Agent",
+      requests: 8456,
+      successRate: 95.8,
+      avgResponseTime: 378,
+      status: "warning",
+      uptime: "97.9%",
+    },
+    {
+      name: "Follow-up & Triage Agent",
+      requests: 7892,
+      successRate: 97.4,
+      avgResponseTime: 198,
+      status: "healthy",
+      uptime: "99.2%",
+    },
+    {
+      name: "Automation Execution Agent",
+      requests: 6543,
+      successRate: 98.9,
+      avgResponseTime: 143,
+      status: "healthy",
+      uptime: "99.6%",
+    },
+    {
+      name: "Agent Performance & Coaching Agent",
+      requests: 3876,
+      successRate: 97.1,
       avgResponseTime: 267,
       status: "healthy",
       uptime: "98.9%",
-    },
-    {
-      name: "Problem Management Agent",
-      requests: 6892,
-      successRate: 95.4,
-      avgResponseTime: 392,
-      status: "warning",
-      uptime: "97.6%",
-    },
-    {
-      name: "Knowledge Management Agent",
-      requests: 5456,
-      successRate: 98.1,
-      avgResponseTime: 156,
-      status: "healthy",
-      uptime: "99.1%",
-    },
-    {
-      name: "Asset Management Agent",
-      requests: 3134,
-      successRate: 94.7,
-      avgResponseTime: 523,
-      status: "critical",
-      uptime: "94.2%",
-    },
-    {
-      name: "SLA Management Agent",
-      requests: 2876,
-      successRate: 97.5,
-      avgResponseTime: 234,
-      status: "healthy",
-      uptime: "98.7%",
     },
   ];
 
   const recentAlerts = [
     {
       id: 1,
-      severity: "critical",
-      message: "Asset Management Agent experiencing high error rate (5.3%)",
+      severity: "warning",
+      message: "Problem & Major Incident Detection Agent response time above threshold (378ms)",
       timestamp: "2 minutes ago",
-      agent: "Asset Management Agent",
+      agent: "Problem & Major Incident Detection Agent",
       resolved: false,
     },
     {
       id: 2,
-      severity: "warning",
-      message: "Problem Management Agent response time above threshold (392ms)",
-      timestamp: "8 minutes ago",
-      agent: "Problem Management Agent",
-      resolved: false,
-    },
-    {
-      id: 3,
       severity: "info",
-      message: "Incident Management Agent scaled up due to high P1 incidents",
-      timestamp: "23 minutes ago",
-      agent: "Incident Management Agent",
+      message: "Intake & Routing Agent scaled up due to high ticket volume",
+      timestamp: "8 minutes ago",
+      agent: "Intake & Routing Agent",
       resolved: true,
     },
     {
-      id: 4,
+      id: 3,
       severity: "warning",
-      message: "Memory usage spike detected in Change Management Agent",
+      message: "Customer Experience & CSAT Agent detected sentiment drop in 15 tickets",
+      timestamp: "23 minutes ago",
+      agent: "Customer Experience & CSAT Agent",
+      resolved: false,
+    },
+    {
+      id: 4,
+      severity: "info",
+      message: "Automation Execution Agent completed 127 password resets",
       timestamp: "1 hour ago",
-      agent: "Change Management Agent",
+      agent: "Automation Execution Agent",
       resolved: true,
     },
     {
       id: 5,
-      severity: "info",
-      message: "Service Request Agent auto-approval deployment completed",
+      severity: "critical",
+      message: "SLA Management & Risk Agent detected 8 at-risk tickets approaching breach",
       timestamp: "2 hours ago",
-      agent: "Service Request Agent",
-      resolved: true,
+      agent: "SLA Management & Risk Agent",
+      resolved: false,
     },
     {
       id: 6,
-      severity: "critical",
-      message: "CMDB connection timeout in Asset Management Agent",
+      severity: "info",
+      message: "Solution Identification Agent knowledge base sync completed",
       timestamp: "3 hours ago",
-      agent: "Asset Management Agent",
+      agent: "Solution Identification Agent",
       resolved: true,
     },
   ];
@@ -322,17 +330,29 @@ const Observability: React.FC = () => {
           </SelectTrigger>
           <SelectContent>
             <SelectItem value="all">All Agents</SelectItem>
-            <SelectItem value="incident-management">
-              Incident Management Agent
+            <SelectItem value="intake-routing">
+              Intake & Routing Agent
             </SelectItem>
-            <SelectItem value="change-management">
-              Change Management Agent
+            <SelectItem value="solution-identification">
+              Solution Identification Agent
             </SelectItem>
-            <SelectItem value="service-request">
-              Service Request Agent
+            <SelectItem value="sla-management">
+              SLA Management & Risk Agent
             </SelectItem>
-            <SelectItem value="problem-management">
-              Problem Management Agent
+            <SelectItem value="customer-experience">
+              Customer Experience & CSAT Agent
+            </SelectItem>
+            <SelectItem value="problem-detection">
+              Problem & Major Incident Detection Agent
+            </SelectItem>
+            <SelectItem value="followup-triage">
+              Follow-up & Triage Agent
+            </SelectItem>
+            <SelectItem value="automation-execution">
+              Automation Execution Agent
+            </SelectItem>
+            <SelectItem value="agent-performance">
+              Agent Performance & Coaching Agent
             </SelectItem>
           </SelectContent>
         </Select>
@@ -635,70 +655,70 @@ const Observability: React.FC = () => {
                     time: "14:32:15",
                     type: "info",
                     message:
-                      "Incident Management Agent processed 1,247 P1/P2 incidents in the last hour",
-                    agent: "Incident Management Agent",
+                      "Intake & Routing Agent processed 1,847 tickets with 98.7% auto-categorization",
+                    agent: "Intake & Routing Agent",
                     details:
-                      "Peak performance maintained with 98.9% auto-resolution rate",
+                      "Routed to optimal queues based on team capacity analysis",
                   },
                   {
                     time: "14:28:42",
                     type: "warning",
                     message:
-                      "Problem Management Agent response time increased to 392ms",
-                    agent: "Problem Management Agent",
-                    details: "Investigating potential CMDB query bottleneck",
+                      "Problem & Major Incident Detection Agent response time increased to 378ms",
+                    agent: "Problem & Major Incident Detection Agent",
+                    details: "Analyzing correlation patterns across 47 incidents",
                   },
                   {
                     time: "14:25:18",
                     type: "success",
                     message:
-                      "Change Management Agent completed batch processing of 500 change requests",
-                    agent: "Change Management Agent",
+                      "Automation Execution Agent completed 127 routine tasks automatically",
+                    agent: "Automation Execution Agent",
                     details:
-                      "Auto-approved 127 standard changes for deployment",
+                      "Password resets, software updates, and permission changes executed",
                   },
                   {
                     time: "14:21:03",
                     type: "error",
                     message:
-                      "Asset Management Agent encountered CMDB API rate limit",
-                    agent: "Asset Management Agent",
+                      "SLA Management & Risk Agent detected 8 tickets at risk of breach",
+                    agent: "SLA Management & Risk Agent",
                     details:
-                      "Implementing exponential backoff for CI discovery",
+                      "Proactive escalation triggered for high-priority tickets",
                   },
                   {
                     time: "14:18:56",
                     type: "info",
                     message:
-                      "Service Request Agent started new fulfillment workflow",
-                    agent: "Service Request Agent",
+                      "Follow-up & Triage Agent engaged 23 users for missing information",
+                    agent: "Follow-up & Triage Agent",
                     details:
-                      "Processing 15 hardware requests from IT procurement",
+                      "Multi-channel communication initiated to enrich tickets",
                   },
                   {
                     time: "14:15:22",
                     type: "success",
                     message:
-                      "Knowledge Management Agent created 23 new KB articles",
-                    agent: "Knowledge Management Agent",
+                      "Solution Identification Agent provided ranked solutions for 156 tickets",
+                    agent: "Solution Identification Agent",
                     details:
-                      "Auto-generated from resolved P2 incidents - 89% accuracy rate",
+                      "Searched historical resolutions and KB articles - 94% accuracy",
                   },
                   {
                     time: "14:12:07",
                     type: "warning",
-                    message: "SLA Management Agent memory usage at 78%",
-                    agent: "SLA Management Agent",
+                    message: "Customer Experience & CSAT Agent detected sentiment drop in 15 tickets",
+                    agent: "Customer Experience & CSAT Agent",
                     details:
-                      "Processing large SLA breach analysis - monitoring resource usage",
+                      "Supervisor alerts triggered for at-risk customer interactions",
                   },
                   {
                     time: "14:08:41",
                     type: "info",
-                    message: "  system health check completed successfully",
-                    agent: "System Monitor",
+                    message: "Agent Performance & Coaching Agent completed team metrics analysis",
+                    agent: "Agent Performance & Coaching Agent",
                     details:
-                      "All   agents operational - 97.8% overall service availability",
+                      "Identified 3 skill gaps and suggested coaching opportunities",
                   },
                 ].map((log, index) => (
                   <div

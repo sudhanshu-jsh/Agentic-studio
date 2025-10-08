@@ -21,6 +21,11 @@ import {
   TrendingUp,
   Shield,
   Zap,
+  MessageCircle,
+  Target,
+  BarChart,
+  UserCheck,
+  Settings,
 } from "lucide-react";
 
 const Marketplace: React.FC = () => {
@@ -29,6 +34,124 @@ const Marketplace: React.FC = () => {
   const featuredAgents = [
     {
       id: 1,
+      name: "Follow-up & Triage Agent",
+      description:
+        "Engages users to gather missing information through automated multi-channel communication. Collects device details, logs, and context to enrich tickets before agent assignment.",
+      category: "ITSM",
+      rating: 4.9,
+      downloads: 1543,
+      price: "Free",
+      author: "Rezolve AI",
+      tags: ["Triage", "Enrichment", "Multi-channel"],
+      featured: true,
+      icon: <MessageCircle className="h-6 w-6 text-primary" />,
+      value: "60% reduction in back-and-forth, improved first-contact resolution",
+    },
+    {
+      id: 2,
+      name: "Automation Execution Agent",
+      description:
+        "Identifies eligible tickets for auto-resolution and safely executes routine tasks like password resets, software updates, and permission changes. Maintains audit trails and learns new automation opportunities.",
+      category: "Automation",
+      rating: 4.8,
+      downloads: 2156,
+      price: "$29/month",
+      author: "Rezolve AI",
+      tags: ["Automation", "Auto-resolution", "Audit"],
+      featured: true,
+      icon: <Settings className="h-6 w-6 text-primary" />,
+      value: "30-50% of routine tickets resolved instantly, consistent execution quality",
+    },
+    {
+      id: 3,
+      name: "Agent Performance & Coaching Agent",
+      description:
+        "Monitors individual and team metrics including SLA compliance, CSAT, resolution times, and workload balance. Identifies skill gaps, suggests coaching opportunities, and detects burnout risks.",
+      category: "Analytics",
+      rating: 4.7,
+      downloads: 987,
+      price: "$39/month",
+      author: "Rezolve AI",
+      tags: ["Performance", "Coaching", "Analytics"],
+      featured: true,
+      icon: <BarChart className="h-6 w-6 text-primary" />,
+      value: "20-30% productivity improvement, reduced agent turnover",
+    },
+  ];
+
+  const allAgents = [
+    {
+      id: 4,
+      name: "Intelligent Escalation Monitor",
+      description:
+        "Analyze incident patterns, communication gaps, customer sentiment, team capacity, and context from similar past tickets to predict when human escalation will be needed before SLAs breach.",
+      category: "ITSM",
+      rating: 4.8,
+      downloads: 1247,
+      price: "Free",
+      author: "ITSM Solutions Inc",
+      tags: ["Detection", "Prediction", "PagerDuty"],
+      featured: false,
+      icon: <TrendingUp className="h-5 w-5 text-primary" />,
+    },
+    {
+      id: 5,
+      name: "Change Risk Advisor",
+      description:
+        "Estimates risk score from change plan, detects blast radius from past tickets, suggests guardrails, and dynamically chooses approval path.",
+      category: "Change Management",
+      rating: 4.7,
+      downloads: 892,
+      price: "$29/month",
+      author: "Change Management Pro",
+      tags: ["Risk-assessment", "Approval", "Escalation"],
+      featured: false,
+      icon: <Shield className="h-5 w-5 text-primary" />,
+    },
+    {
+      id: 6,
+      name: "Intelligent Change Approver",
+      description:
+        "Analyzes change requests to estimate risk score using risk factors, blast radius, timing, and historical patterns to auto-approve low-risk changes and flag high-risk ones for human review.",
+      category: "Change Management",
+      rating: 4.9,
+      downloads: 1123,
+      price: "$19/month",
+      author: "Change Management Pro",
+      tags: ["Risk-assessment", "Auto-approve"],
+      featured: false,
+      icon: <UserCheck className="h-5 w-5 text-primary" />,
+    },
+    {
+      id: 7,
+      name: "Proactive Problem Manager",
+      description:
+        "Clusters recurring incidents by categories, symptoms, and geographies. Flags all incidents for the problem records, alerts, and suggests fixes and temporary workarounds.",
+      category: "Problem Management",
+      rating: 4.6,
+      downloads: 756,
+      price: "$39/month",
+      author: "Problem Management Labs",
+      tags: ["Monitoring", "Clustering", "Workarounds"],
+      featured: false,
+      icon: <Target className="h-5 w-5 text-primary" />,
+    },
+    {
+      id: 8,
+      name: "Knowledge Articles Writer",
+      description:
+        "Finds high-volume intents with low deflection, drafts KB articles from past resolutions and available knowledge, and initiates knowledge review workflow for human review.",
+      category: "Knowledge Management",
+      rating: 4.7,
+      downloads: 1034,
+      price: "$29/month",
+      author: "Knowledge Labs",
+      tags: ["Low-deflection", "Auto-complete", "Knowledge"],
+      featured: false,
+      icon: <Bot className="h-5 w-5 text-primary" />,
+    },
+    {
+      id: 9,
       name: "Incident Response Agent",
       description:
         "Automatically triages and routes incident tickets based on severity and category",
@@ -38,10 +161,11 @@ const Marketplace: React.FC = () => {
       price: "Free",
       author: "ITSM Solutions Inc",
       tags: ["Incident", "Triage", "Routing"],
-      featured: true,
+      featured: false,
+      icon: <Zap className="h-5 w-5 text-primary" />,
     },
     {
-      id: 2,
+      id: 10,
       name: "O365 Password Reset Agent",
       description:
         "Handles Office 365 password reset requests with security verification",
@@ -51,10 +175,11 @@ const Marketplace: React.FC = () => {
       price: "$29/month",
       author: "Security Bot Co",
       tags: ["O365", "Password", "Security"],
-      featured: true,
+      featured: false,
+      icon: <Shield className="h-5 w-5 text-primary" />,
     },
     {
-      id: 3,
+      id: 11,
       name: "Hardware Procurement Agent",
       description:
         "Processes hardware procurement requests with approval workflow",
@@ -64,14 +189,11 @@ const Marketplace: React.FC = () => {
       price: "$19/month",
       author: "Procurement Labs",
       tags: ["Hardware", "Procurement", "Approval"],
-      featured: true,
+      featured: false,
+      icon: <Bot className="h-5 w-5 text-primary" />,
     },
-  ];
-
-  const allAgents = [
-    ...featuredAgents,
     {
-      id: 4,
+      id: 12,
       name: "Service Request Routing Agent",
       description: "Intelligently routes service requests to appropriate teams",
       category: "ITSM",
@@ -81,6 +203,7 @@ const Marketplace: React.FC = () => {
       author: "ServiceDesk Pro",
       tags: ["Service Request", "Routing", "Teams"],
       featured: false,
+      icon: <Users className="h-5 w-5 text-primary" />,
     },
   ];
 
@@ -158,16 +281,18 @@ const Marketplace: React.FC = () => {
             >
               <CardHeader>
                 <div className="flex items-start justify-between">
-                  <div className="flex items-center gap-2">
-                    <Bot className="h-6 w-6 text-primary" />
-                    <div>
-                      <CardTitle className="text-lg">{agent.name}</CardTitle>
-                      <p className="text-sm text-muted-foreground">
+                  <div className="flex items-center gap-2 flex-1">
+                    {agent.icon}
+                    <div className="flex-1 min-w-0">
+                      <CardTitle className="text-base leading-tight">
+                        {agent.name}
+                      </CardTitle>
+                      <p className="text-xs text-muted-foreground">
                         by {agent.author}
                       </p>
                     </div>
                   </div>
-                  <Badge className="bg-yellow-100 text-yellow-800">
+                  <Badge className="bg-yellow-100 text-yellow-800 text-xs flex-shrink-0 ml-2">
                     Featured
                   </Badge>
                 </div>
@@ -176,6 +301,15 @@ const Marketplace: React.FC = () => {
                 <p className="text-sm text-muted-foreground">
                   {agent.description}
                 </p>
+
+                {agent.value && (
+                  <div className="bg-blue-50 border border-blue-200 rounded p-2">
+                    <p className="text-xs text-blue-900 font-medium">
+                      <span className="font-semibold">Value: </span>
+                      {agent.value}
+                    </p>
+                  </div>
+                )}
 
                 <div className="flex flex-wrap gap-1">
                   {agent.tags.map((tag, index) => (
@@ -237,9 +371,9 @@ const Marketplace: React.FC = () => {
                 <CardHeader>
                   <div className="flex items-start justify-between">
                     <div className="flex items-center gap-2">
-                      <Bot className="h-5 w-5 text-primary" />
+                      {agent.icon}
                       <div>
-                        <CardTitle className="text-base">
+                        <CardTitle className="text-sm">
                           {agent.name}
                         </CardTitle>
                         <p className="text-xs text-muted-foreground">
@@ -247,7 +381,7 @@ const Marketplace: React.FC = () => {
                         </p>
                       </div>
                     </div>
-                    <Badge variant="outline">{agent.category}</Badge>
+                    <Badge variant="outline" className="text-xs whitespace-nowrap flex-shrink-0">{agent.category}</Badge>
                   </div>
                 </CardHeader>
                 <CardContent className="space-y-3">

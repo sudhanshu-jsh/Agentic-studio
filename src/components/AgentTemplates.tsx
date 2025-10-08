@@ -19,6 +19,11 @@ import {
   Users,
   Zap,
   Filter,
+  Target,
+  Lightbulb,
+  Shield,
+  TrendingUp,
+  AlertTriangle,
 } from "lucide-react";
 
 interface Template {
@@ -29,6 +34,7 @@ interface Template {
   tags: string[];
   icon: React.ReactNode;
   complexity: "Beginner" | "Intermediate" | "Advanced";
+  value?: string;
 }
 
 interface AgentTemplatesProps {
@@ -54,56 +60,62 @@ const AgentTemplates: React.FC<AgentTemplatesProps> = ({
       tags: ["Detection", "Swarming", "Timeline"],
       icon: <Zap className="h-6 w-6" />,
       complexity: "Advanced",
+      value: "Reduces major incident response time by 40-60%, improves stakeholder coordination",
     },
     {
-      id: "intelligent-escalation-monitor",
-      name: "Intelligent Escalation Monitor",
+      id: "intake-routing-agent",
+      name: "Intake & Routing Agent",
       description:
-        "Analyze incident patterns, communication gaps, customer sentiment, team capacity, and context from similar past tickets to predict when human escalation will be needed before SLAs breach.",
+        "Automatically categorizes incoming tickets, assigns priority, and routes to the optimal queue based on content analysis and team capacity. Flags incomplete tickets and escalates to Follow-up Agent when critical information is missing.",
       category: "ITSM",
-      tags: ["Detection", "Prediction", "PagerDuty"],
-      icon: <Bot className="h-6 w-6" />,
-      complexity: "Advanced",
-    },
-    {
-      id: "change-risk-advisor",
-      name: "Change Risk Advisor",
-      description:
-        "Estimates risk score from change plan, detects blast radius from past tickets, suggests guardrails, and dynamically chooses approval path.",
-      category: "Change Management",
-      tags: ["Risk-assessment", "Approval", "Escalation"],
-      icon: <FileText className="h-6 w-6" />,
-      complexity: "Advanced",
-    },
-    {
-      id: "intelligent-change-approver",
-      name: "Intelligent Change Approver",
-      description:
-        "Analyzes change requests to estimate risk score using risk factors, blast radius, timing, and historical patterns to auto-approve low-risk changes and flag high-risk ones for human review.",
-      category: "Change Management",
-      tags: ["Risk-assessment", "Auto-approve"],
-      icon: <MessageSquare className="h-6 w-6" />,
+      tags: ["Triage", "Routing", "Categorization"],
+      icon: <Target className="h-6 w-6" />,
       complexity: "Intermediate",
+      value: "60-80% reduction in manual triage time, consistent categorization standards",
     },
     {
-      id: "proactive-problem-manager",
-      name: "Proactive Problem Manager",
+      id: "solution-identification-agent",
+      name: "Solution Identification Agent",
       description:
-        "Clusters recurring incidents by categories, symptoms, and geographies. Flags all incidents for the problem records, alerts, and suggests fixes and temporary workarounds.",
-      category: "Problem Management",
-      tags: ["Monitoring", "Clustering", "Workarounds"],
+        "Analyzes ticket content and searches historical resolutions, KB articles, and runbooks to provide ranked solution recommendations. Learns from successful resolutions to improve future suggestions.",
+      category: "Knowledge Management",
+      tags: ["Knowledge", "Resolution", "Learning"],
+      icon: <Lightbulb className="h-6 w-6" />,
+      complexity: "Advanced",
+      value: "Faster resolution times, reduced repetitive research, improved knowledge capture",
+    },
+    {
+      id: "sla-management-risk-agent",
+      name: "SLA Management & Risk Agent",
+      description:
+        "Continuously monitors SLA health using predictive analytics based on ticket complexity, agent workload, and historical data. Proactively escalates at-risk tickets before breaches occur.",
+      category: "ITSM",
+      tags: ["SLA", "Prediction", "Risk-assessment"],
+      icon: <Shield className="h-6 w-6" />,
+      complexity: "Advanced",
+      value: "40-60% reduction in SLA breaches, enables proactive capacity management",
+    },
+    {
+      id: "customer-experience-csat-agent",
+      name: "Customer Experience & CSAT Agent",
+      description:
+        "Performs real-time sentiment analysis on user communications, tracks satisfaction journey across touchpoints, and alerts supervisors to frustration signals. Triggers contextual surveys and predicts CSAT scores.",
+      category: "ITSM",
+      tags: ["Sentiment", "CSAT", "Experience"],
       icon: <Users className="h-6 w-6" />,
       complexity: "Advanced",
+      value: "15-25% CSAT improvement, early identification of at-risk customers",
     },
     {
-      id: "knowledge-articles-writer",
-      name: "Knowledge Articles Writer",
+      id: "problem-major-incident-detection-agent",
+      name: "Problem & Major Incident Detection Agent",
       description:
-        "Finds high-volume intents with low deflection, drafts KB articles from past resolutions and available knowledge, and initiates knowledge review workflow for human review.",
-      category: "Knowledge Management",
-      tags: ["Low-deflection", "Auto-complete", "Knowledge"],
-      icon: <Search className="h-6 w-6" />,
-      complexity: "Intermediate",
+        "Correlates multiple incidents to identify systemic issues and major events. Analyzes patterns, assesses impact, and automatically escalates to appropriate workflows with aggregated evidence.",
+      category: "Problem Management",
+      tags: ["Detection", "Correlation", "Escalation"],
+      icon: <AlertTriangle className="h-6 w-6" />,
+      complexity: "Advanced",
+      value: "50-70% faster identification of widespread issues, reduced MTTR",
     },
   ];
 
@@ -214,6 +226,15 @@ const AgentTemplates: React.FC<AgentTemplatesProps> = ({
                   <p className="text-sm text-muted-foreground leading-relaxed">
                     {template.description}
                   </p>
+
+                  {template.value && (
+                    <div className="bg-blue-50 border border-blue-200 rounded p-2">
+                      <p className="text-xs text-blue-900 font-medium">
+                        <span className="font-semibold">Value: </span>
+                        {template.value}
+                      </p>
+                    </div>
+                  )}
 
                   <div className="flex flex-wrap gap-2">
                     {template.tags.map((tag) => (
