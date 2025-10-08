@@ -41,7 +41,7 @@ const Marketplace: React.FC = () => {
       rating: 4.9,
       downloads: 1543,
       price: "Free",
-      author: "Rezolve AI",
+      author: "TriageBot Solutions",
       tags: ["Triage", "Enrichment", "Multi-channel"],
       featured: true,
       icon: <MessageCircle className="h-6 w-6 text-primary" />,
@@ -56,7 +56,7 @@ const Marketplace: React.FC = () => {
       rating: 4.8,
       downloads: 2156,
       price: "$29/month",
-      author: "Rezolve AI",
+      author: "AutomateIT Labs",
       tags: ["Automation", "Auto-resolution", "Audit"],
       featured: true,
       icon: <Settings className="h-6 w-6 text-primary" />,
@@ -71,7 +71,7 @@ const Marketplace: React.FC = () => {
       rating: 4.7,
       downloads: 987,
       price: "$39/month",
-      author: "Rezolve AI",
+      author: "Performance Insights Co",
       tags: ["Performance", "Coaching", "Analytics"],
       featured: true,
       icon: <BarChart className="h-6 w-6 text-primary" />,
@@ -280,8 +280,8 @@ const Marketplace: React.FC = () => {
               className="hover:shadow-lg transition-shadow border-2 border-yellow-200"
             >
               <CardHeader>
-                <div className="flex items-start justify-between">
-                  <div className="flex items-center gap-2 flex-1">
+                <div className="flex items-start justify-between gap-2">
+                  <div className="flex items-center gap-2 flex-1 min-w-0">
                     {agent.icon}
                     <div className="flex-1 min-w-0">
                       <CardTitle className="text-base leading-tight">
@@ -292,9 +292,6 @@ const Marketplace: React.FC = () => {
                       </p>
                     </div>
                   </div>
-                  <Badge className="bg-yellow-100 text-yellow-800 text-xs flex-shrink-0 ml-2">
-                    Featured
-                  </Badge>
                 </div>
               </CardHeader>
               <CardContent className="space-y-4">
@@ -321,6 +318,9 @@ const Marketplace: React.FC = () => {
 
                 <div className="flex items-center justify-between text-sm">
                   <div className="flex items-center gap-4">
+                    <Badge className="bg-yellow-100 text-yellow-800 text-xs">
+                      Featured
+                    </Badge>
                     <div className="flex items-center gap-1">
                       <Star className="h-4 w-4 text-yellow-500 fill-current" />
                       <span>{agent.rating}</span>
@@ -398,13 +398,9 @@ const Marketplace: React.FC = () => {
                   </div>
 
                   <div className="flex items-center justify-between text-sm">
-                    <div className="flex items-center gap-3">
+                    <div className="flex items-center gap-4">
                       <div className="flex items-center gap-1">
-                        <Star className="h-3 w-3 text-yellow-500 fill-current" />
-                        <span>{agent.rating}</span>
-                      </div>
-                      <div className="flex items-center gap-1">
-                        <Download className="h-3 w-3 text-muted-foreground" />
+                        <Download className="h-4 w-4 text-muted-foreground" />
                         <span>{agent.downloads}</span>
                       </div>
                     </div>

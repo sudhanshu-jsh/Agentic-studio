@@ -24,6 +24,9 @@ import {
   Shield,
   TrendingUp,
   AlertTriangle,
+  Settings,
+  BarChart,
+  MessageCircle,
 } from "lucide-react";
 
 interface Template {
@@ -51,17 +54,6 @@ const AgentTemplates: React.FC<AgentTemplatesProps> = ({
   const [selectedCategory, setSelectedCategory] = useState("all");
 
   const templates: Template[] = [
-    {
-      id: "major-incident-swarmer",
-      name: "Major Incident Swarmer",
-      description:
-        "Detects P1 spikes, spins up an MS Teams / Slack channel, invites stakeholders, enables stakeholders with analysis based on knowledge and past tickets, posts situation updates, and tracks timeline.",
-      category: "ITSM",
-      tags: ["Detection", "Swarming", "Timeline"],
-      icon: <Zap className="h-6 w-6" />,
-      complexity: "Advanced",
-      value: "Reduces major incident response time by 40-60%, improves stakeholder coordination",
-    },
     {
       id: "intake-routing-agent",
       name: "Intake & Routing Agent",
@@ -96,6 +88,17 @@ const AgentTemplates: React.FC<AgentTemplatesProps> = ({
       value: "40-60% reduction in SLA breaches, enables proactive capacity management",
     },
     {
+      id: "major-incident-swarmer",
+      name: "Major Incident Swarmer",
+      description:
+        "Detects P1 spikes, spins up an MS Teams / Slack channel, invites stakeholders, enables stakeholders with analysis based on knowledge and past tickets, posts situation updates, and tracks timeline.",
+      category: "ITSM",
+      tags: ["Detection", "Swarming", "Timeline"],
+      icon: <Zap className="h-6 w-6" />,
+      complexity: "Advanced",
+      value: "Reduces major incident response time by 40-60%, improves stakeholder coordination",
+    },
+    {
       id: "customer-experience-csat-agent",
       name: "Customer Experience & CSAT Agent",
       description:
@@ -116,6 +119,39 @@ const AgentTemplates: React.FC<AgentTemplatesProps> = ({
       icon: <AlertTriangle className="h-6 w-6" />,
       complexity: "Advanced",
       value: "50-70% faster identification of widespread issues, reduced MTTR",
+    },
+    {
+      id: "followup-triage-agent",
+      name: "Follow-up & Triage Agent",
+      description:
+        "Engages users to gather missing information through automated multi-channel communication. Collects device details, logs, and context to enrich tickets before agent assignment.",
+      category: "ITSM",
+      tags: ["Triage", "Enrichment", "Multi-channel"],
+      icon: <MessageCircle className="h-6 w-6" />,
+      complexity: "Intermediate",
+      value: "60% reduction in back-and-forth, improved first-contact resolution",
+    },
+    {
+      id: "automation-execution-agent",
+      name: "Automation Execution Agent",
+      description:
+        "Identifies eligible tickets for auto-resolution and safely executes routine tasks like password resets, software updates, and permission changes. Maintains audit trails and learns new automation opportunities.",
+      category: "Automation",
+      tags: ["Automation", "Auto-resolution", "Audit"],
+      icon: <Settings className="h-6 w-6" />,
+      complexity: "Advanced",
+      value: "30-50% of routine tickets resolved instantly, consistent execution quality",
+    },
+    {
+      id: "agent-performance-coaching-agent",
+      name: "Agent Performance & Coaching Agent",
+      description:
+        "Monitors individual and team metrics including SLA compliance, CSAT, resolution times, and workload balance. Identifies skill gaps, suggests coaching opportunities, and detects burnout risks.",
+      category: "Analytics",
+      tags: ["Performance", "Coaching", "Analytics"],
+      icon: <BarChart className="h-6 w-6" />,
+      complexity: "Advanced",
+      value: "20-30% productivity improvement, reduced agent turnover",
     },
   ];
 
