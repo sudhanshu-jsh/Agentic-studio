@@ -812,7 +812,7 @@ export default function Collaboration() {
             Collaboration
           </h1>
           <p className="text-muted-foreground">
-            Work together on AI agents and share knowledge with your team
+          Collaborate with your AI team mates
           </p>
         </div>
         <div className="flex items-center gap-4">
